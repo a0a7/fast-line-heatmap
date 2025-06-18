@@ -1,0 +1,46 @@
+/* Style touchbar on mobile */
+@media (max-width: 768px) {
+	.resizable-touchbar {
+		position: relative;
+	}
+
+	.resizable-touchbar::before {
+		content: '';
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: 1rem;
+		border-top-left-radius: 1rem;
+		border-top-right-radius: 1rem;
+		background-color: hsl(var(--background));
+		z-index: 5;
+	}
+
+	.resizable-touchbar::after {
+		content: '';
+		position: absolute;
+		top: -0.5rem;
+		width: 6rem !important;
+		height: 2rem;
+		left: 0;
+		right: 0;
+		margin-left: auto;
+		margin-right: auto;
+		border-radius: 9999px;
+		background-color: gray;
+		z-index: 6;
+	}
+}
+
+/* Style handle component on desktop*/
+@media (min-width: 768px) {
+	div.resizable-touchbar > :first-child {
+		width: 1rem;
+		height: 1.25rem;
+	}
+	:not(.dark) div.resizable-touchbar > :first-child {
+		background-color: hsl(var(--accent)) !important;
+		border-width: 0;
+	}
+}
