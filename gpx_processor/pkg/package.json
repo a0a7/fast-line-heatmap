@@ -30,6 +30,6 @@
     "polyline"
   ],
   "publishConfig": {
-    "@a0a7:registry": "https://npm.pkg.github.com"
+    "registry": "https://npm.pkg.github.com"
   }
 }
