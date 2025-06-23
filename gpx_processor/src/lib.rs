@@ -1,7 +1,7 @@
 use wasm_bindgen::prelude::*;
 use gpx::read;
 use std::io::Cursor;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 
 // Define the main data structures
@@ -15,6 +15,44 @@ pub struct HeatmapTrack {
 pub struct HeatmapResult {
     tracks: Vec<HeatmapTrack>,
     max_frequency: u32,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ValidationResult {
+    valid_count: u32,
+    total_count: u32,
+    issues: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct TrackStatistics {
+    distance_km: f64,
+    point_count: u32,
+    bounding_box: [f64; 4], // [min_lat, min_lng, max_lat, max_lng]
+    elevation_gain: Option<f64>,
+    average_speed: Option<f64>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct FileInfo {
+    format: String,
+    track_count: u32,
+    point_count: u32,
+    valid: bool,
+    file_size: u32,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct IntersectionPoint {
+    coordinate: [f64; 2],
+    track_indices: Vec<u32>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct TrackCluster {
+    representative_track: Vec<[f64; 2]>,
+    member_indices: Vec<u32>,
+    similarity_score: f64,
 }
 
 // Add a console log function for debugging
@@ -81,7 +119,7 @@ pub fn decode_polyline(encoded: &str) -> Vec<[f64; 2]> {
     coords
 }
 
-// Wasm-bindgen export for polyline decoding
+// wasm export for polyline decoding
 #[wasm_bindgen]
 pub fn decode_polyline_string(encoded: &str) -> JsValue {
     let coords = decode_polyline(encoded);
