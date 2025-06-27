@@ -941,3 +941,46 @@ fn is_fit_file(data: &[u8]) -> bool {
     // Check for FIT signature at bytes 8-11
     data[8] == b'.' && data[9] == b'F' && data[10] == b'I' && data[11] == b'T'
 }
+
+// data processing & validation functions
+#[wasm_bindgen]
+pub fn validate_coordinates(coords: js_sys::Array) -> JsValue {
+    let mut issues = Vec::new();
+    let mut valid_count = 0;
+    
+    for i in 0..coords.length() {
+        if let Ok(coord_array) = serde_wasm_bindgen::from_value::<[f64; 2]>(coords.get(i)) {
+            let [lat, lon] = coord_array;
+            
+            if !is_valid_coordinate(lat, lon) {
+                issues.push(format!("invalid coordinate at index {}: [{}, {}]", i, lat, lon));
+            } else {
+                valid_count += 1;
+            }
+        }
+    }
+    
+    let result = ValidationResult {
+        valid_count,
+        total_count: coords.length(),
+        issues,
+    };
+    
+    serde_wasm_bindgen::to_value(&result).unwrap_or(JsValue::NULL)
+}
+
+// pure rust version for validation
+pub fn validate_coordinates_rust(coords: &[[f64; 2]]) -> (u32, Vec<String>) {
+    let mut issues = Vec::new();
+    let mut valid_count = 0;
+    
+    for (i, &[lat, lon]) in coords.iter().enumerate() {
+        if !is_valid_coordinate(lat, lon) {
+            issues.push(format!("invalid coordinate at index {}: [{}, {}]", i, lat, lon));
+        } else {
+            valid_count += 1;
+        }
+    }
+    
+    (valid_count, issues)
+}
