@@ -969,7 +969,7 @@ pub fn validate_coordinates(coords: js_sys::Array) -> JsValue {
     serde_wasm_bindgen::to_value(&result).unwrap_or(JsValue::NULL)
 }
 
-// pure rust version for validation
+// validation
 pub fn validate_coordinates_rust(coords: &[[f64; 2]]) -> (u32, Vec<String>) {
     let mut issues = Vec::new();
     let mut valid_count = 0;
@@ -984,3 +984,42 @@ pub fn validate_coordinates_rust(coords: &[[f64; 2]]) -> (u32, Vec<String>) {
     
     (valid_count, issues)
 }
+
+#[wasm_bindgen]
+pub fn filter_coordinates_by_bounds(coords: js_sys::Array, bounds: js_sys::Array) -> JsValue {
+    // bounds format: [min_lat, min_lon, max_lat, max_lon]
+    if bounds.length() != 4 {
+        return JsValue::NULL;
+    }
+    
+    let min_lat = bounds.get(0).as_f64().unwrap_or(-90.0);
+    let min_lon = bounds.get(1).as_f64().unwrap_or(-180.0);
+    let max_lat = bounds.get(2).as_f64().unwrap_or(90.0);
+    let max_lon = bounds.get(3).as_f64().unwrap_or(180.0);
+    
+    let mut filtered = Vec::new();
+    
+    for i in 0..coords.length() {
+        if let Ok(coord_array) = serde_wasm_bindgen::from_value::<[f64; 2]>(coords.get(i)) {
+            let [lat, lon] = coord_array;
+            
+            if lat >= min_lat && lat <= max_lat && lon >= min_lon && lon <= max_lon {
+                filtered.push([lat, lon]);
+            }
+        }
+    }
+    
+    serde_wasm_bindgen::to_value(&filtered).unwrap_or(JsValue::NULL)
+}
+
+// bounds filtering
+pub fn filter_coordinates_by_bounds_rust(coords: &[[f64; 2]], bounds: [f64; 4]) -> Vec<[f64; 2]> {
+    let [min_lat, min_lon, max_lat, max_lon] = bounds;
+    
+    coords.iter()
+        .filter(|&&[lat, lon]| lat >= min_lat && lat <= max_lat && lon >= min_lon && lon <= max_lon)
+        .copied()
+        .collect()
+}
+
+
