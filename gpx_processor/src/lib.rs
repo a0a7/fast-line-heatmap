@@ -1121,3 +1121,23 @@ pub fn merge_nearby_tracks(tracks: js_sys::Array, distance_threshold: f64) -> Js
 pub fn merge_nearby_tracks_rust(tracks: &[Vec<[f64; 2]>], distance_threshold: f64) -> Vec<Vec<[f64; 2]>> {
     merge_similar_tracks(tracks, distance_threshold)
 }
+
+#[wasm_bindgen]
+pub fn split_track_by_gaps(coords: js_sys::Array, max_gap_km: f64, _max_time_gap_seconds: u32) -> JsValue {
+    let mut coordinates = Vec::new();
+    
+    for i in 0..coords.length() {
+        if let Ok(coord_array) = serde_wasm_bindgen::from_value::<[f64; 2]>(coords.get(i)) {
+            coordinates.push(coord_array);
+        }
+    }
+    
+    let split_tracks = split_by_spatial_gaps(&coordinates, max_gap_km);
+    serde_wasm_bindgen::to_value(&split_tracks).unwrap_or(JsValue::NULL)
+}
+
+// split track by gaps
+pub fn split_track_by_gaps_rust(coords: &[[f64; 2]], max_gap_km: f64) -> Vec<Vec<[f64; 2]>> {
+    split_by_spatial_gaps(coords, max_gap_km)
+}
+
