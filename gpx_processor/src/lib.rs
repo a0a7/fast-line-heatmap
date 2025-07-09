@@ -1274,3 +1274,42 @@ pub fn find_track_intersections_rust(tracks: &[Vec<[f64; 2]>], tolerance: f64) -
         .map(|ip| (ip.coordinate, ip.track_indices))
         .collect()
 }
+
+#[wasm_bindgen]
+pub fn calculate_coverage_area(tracks: js_sys::Array) -> JsValue {
+    let mut all_points = Vec::new();
+    
+    for i in 0..tracks.length() {
+        if let Ok(track) = serde_wasm_bindgen::from_value::<Vec<[f64; 2]>>(tracks.get(i)) {
+            all_points.extend(track);
+        }
+    }
+    
+    if all_points.is_empty() {
+        return JsValue::NULL;
+    }
+    
+    let bbox = calculate_bounding_box(&all_points);
+    let area_km2 = calculate_area_km2(&bbox);
+    
+    let result = serde_json::json!({
+        "bounding_box": bbox,
+        "area_km2": area_km2,
+        "point_count": all_points.len()
+    });
+    
+    serde_wasm_bindgen::to_value(&result).unwrap_or(JsValue::NULL)
+}
+// calculate coverage area
+pub fn calculate_coverage_area_rust(tracks: &[Vec<[f64; 2]>]) -> Option<([f64; 4], f64, usize)> {
+    let all_points: Vec<[f64; 2]> = tracks.iter().flatten().copied().collect();
+    
+    if all_points.is_empty() {
+        return None;
+    }
+    
+    let bbox = calculate_bounding_box(&all_points);
+    let area_km2 = calculate_area_km2(&bbox);
+    
+    Some((bbox, area_km2, all_points.len()))
+}
