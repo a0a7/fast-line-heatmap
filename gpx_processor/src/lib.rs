@@ -1335,3 +1335,9 @@ pub fn cluster_tracks_by_similarity_rust(tracks: &[Vec<[f64; 2]>], similarity_th
         .map(|tc| (tc.representative_track, tc.member_indices, tc.similarity_score))
         .collect()
 }
+
+// utility functions
+#[wasm_bindgen]
+pub fn calculate_distance_between_points(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
+    haversine_distance(lat1, lon1, lat2, lon2)
+}
