@@ -1313,3 +1313,25 @@ pub fn calculate_coverage_area_rust(tracks: &[Vec<[f64; 2]>]) -> Option<([f64; 4
     
     Some((bbox, area_km2, all_points.len()))
 }
+
+#[wasm_bindgen]
+pub fn cluster_tracks_by_similarity(tracks: js_sys::Array, similarity_threshold: f64) -> JsValue {
+    let mut track_list = Vec::new();
+    
+    for i in 0..tracks.length() {
+        if let Ok(track) = serde_wasm_bindgen::from_value::<Vec<[f64; 2]>>(tracks.get(i)) {
+            track_list.push(track);
+        }
+    }
+    
+    let clusters = cluster_similar_tracks(&track_list, similarity_threshold);
+    serde_wasm_bindgen::to_value(&clusters).unwrap_or(JsValue::NULL)
+}
+
+// cluster tracks by similarity
+pub fn cluster_tracks_by_similarity_rust(tracks: &[Vec<[f64; 2]>], similarity_threshold: f64) -> Vec<(Vec<[f64; 2]>, Vec<u32>, f64)> {
+    let clusters = cluster_similar_tracks(tracks, similarity_threshold);
+    clusters.into_iter()
+        .map(|tc| (tc.representative_track, tc.member_indices, tc.similarity_score))
+        .collect()
+}
