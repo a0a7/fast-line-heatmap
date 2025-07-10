@@ -1341,3 +1341,26 @@ pub fn cluster_tracks_by_similarity_rust(tracks: &[Vec<[f64; 2]>], similarity_th
 pub fn calculate_distance_between_points(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
     haversine_distance(lat1, lon1, lat2, lon2)
 }
+
+#[wasm_bindgen]
+pub fn get_bounding_box(coords: js_sys::Array) -> JsValue {
+    let mut coordinates = Vec::new();
+    
+    for i in 0..coords.length() {
+        if let Ok(coord_array) = serde_wasm_bindgen::from_value::<[f64; 2]>(coords.get(i)) {
+            coordinates.push(coord_array);
+        }
+    }
+    
+    if coordinates.is_empty() {
+        return JsValue::NULL;
+    }
+    
+    let bbox = calculate_bounding_box(&coordinates);
+    serde_wasm_bindgen::to_value(&bbox).unwrap_or(JsValue::NULL)
+}
+
+// bounding box
+pub fn get_bounding_box_rust(coords: &[[f64; 2]]) -> [f64; 4] {
+    calculate_bounding_box(coords)
+}
