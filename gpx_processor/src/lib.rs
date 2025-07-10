@@ -1364,3 +1364,23 @@ pub fn get_bounding_box(coords: js_sys::Array) -> JsValue {
 pub fn get_bounding_box_rust(coords: &[[f64; 2]]) -> [f64; 4] {
     calculate_bounding_box(coords)
 }
+
+#[wasm_bindgen]
+pub fn resample_track(coords: js_sys::Array, target_point_count: u32) -> JsValue {
+    let mut coordinates = Vec::new();
+    
+    for i in 0..coords.length() {
+        if let Ok(coord_array) = serde_wasm_bindgen::from_value::<[f64; 2]>(coords.get(i)) {
+            coordinates.push(coord_array);
+        }
+    }
+    
+    let resampled = resample_coordinates(&coordinates, target_point_count as usize);
+    serde_wasm_bindgen::to_value(&resampled).unwrap_or(JsValue::NULL)
+}
+
+// resample track
+pub fn resample_track_rust(coords: &[[f64; 2]], target_point_count: usize) -> Vec<[f64; 2]> {
+    resample_coordinates(coords, target_point_count)
+}
+
