@@ -1421,3 +1421,35 @@ pub fn get_file_info(file_bytes: js_sys::Uint8Array) -> JsValue {
     
     serde_wasm_bindgen::to_value(&info).unwrap_or(JsValue::NULL)
 }
+
+#[wasm_bindgen]
+pub fn extract_file_metadata(file_bytes: js_sys::Uint8Array) -> JsValue {
+    let bytes = file_bytes.to_vec();
+    
+    if let Ok(gpx) = read(Cursor::new(&bytes)) {
+        let metadata = serde_json::json!({
+            "format": "gpx",
+            "creator": gpx.creator,
+            "version": format!("{:?}", gpx.version),
+            "tracks": gpx.tracks.iter().map(|t| serde_json::json!({
+                "name": t.name,
+                "description": t.description,
+                "segment_count": t.segments.len()
+            })).collect::<Vec<_>>()
+        });
+        
+        return serde_wasm_bindgen::to_value(&metadata).unwrap_or(JsValue::NULL);
+    }
+    
+    if is_fit_file(&bytes) {
+        let metadata = serde_json::json!({
+            "format": "fit",
+            "file_size": bytes.len()
+        });
+        
+        return serde_wasm_bindgen::to_value(&metadata).unwrap_or(JsValue::NULL);
+    }
+    
+    JsValue::NULL
+}
+
