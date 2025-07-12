@@ -1453,3 +1453,25 @@ pub fn extract_file_metadata(file_bytes: js_sys::Uint8Array) -> JsValue {
     JsValue::NULL
 }
 
+// helper functions
+fn encode_polyline(coordinates: &[[f64; 2]]) -> String {
+    let mut encoded = String::new();
+    let mut prev_lat = 0i32;
+    let mut prev_lng = 0i32;
+    
+    for coord in coordinates {
+        let lat = (coord[0] * 1e5).round() as i32;
+        let lng = (coord[1] * 1e5).round() as i32;
+        
+        let d_lat = lat - prev_lat;
+        let d_lng = lng - prev_lng;
+        
+        encoded.push_str(&encode_number(d_lat));
+        encoded.push_str(&encode_number(d_lng));
+        
+        prev_lat = lat;
+        prev_lng = lng;
+    }
+    
+    encoded
+}
