@@ -1475,3 +1475,16 @@ fn encode_polyline(coordinates: &[[f64; 2]]) -> String {
     
     encoded
 }
+
+fn encode_number(num: i32) -> String {
+    let mut value = if num < 0 { (!num) << 1 | 1 } else { num << 1 };
+    let mut encoded = String::new();
+    
+    while value >= 0x20 {
+        encoded.push(((0x20 | (value & 0x1f)) + 63) as u8 as char);
+        value >>= 5;
+    }
+    encoded.push((value + 63) as u8 as char);
+    
+    encoded
+}
