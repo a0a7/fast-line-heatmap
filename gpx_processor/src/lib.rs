@@ -1488,3 +1488,58 @@ fn encode_number(num: i32) -> String {
     
     encoded
 }
+
+fn merge_similar_tracks(tracks: &[Vec<[f64; 2]>], distance_threshold: f64) -> Vec<Vec<[f64; 2]>> {
+    let mut merged = Vec::new();
+    let mut used = vec![false; tracks.len()];
+    
+    for i in 0..tracks.len() {
+        if used[i] {
+            continue;
+        }
+        
+        let mut current_track = tracks[i].clone();
+        used[i] = true;
+        
+        // look for similar tracks to merge
+        for j in (i + 1)..tracks.len() {
+            if used[j] {
+                continue;
+            }
+            
+            if tracks_are_similar(&current_track, &tracks[j], distance_threshold) {
+                // merge tracks by interleaving points
+                current_track = merge_two_tracks(&current_track, &tracks[j]);
+                used[j] = true;
+            }
+        }
+        
+        merged.push(current_track);
+    }
+    
+    merged
+}
+
+fn tracks_are_similar(track1: &[[f64; 2]], track2: &[[f64; 2]], threshold: f64) -> bool {
+    if track1.len() < 2 || track2.len() < 2 {
+        return false;
+    }
+    
+    // simple similarity check: compare start and end points
+    let start_dist = haversine_distance(track1[0][0], track1[0][1], track2[0][0], track2[0][1]);
+    let end_dist = haversine_distance(
+        track1[track1.len() - 1][0], track1[track1.len() - 1][1],
+        track2[track2.len() - 1][0], track2[track2.len() - 1][1]
+    );
+    
+    start_dist <= threshold && end_dist <= threshold
+}
+
+fn merge_two_tracks(track1: &[[f64; 2]], track2: &[[f64; 2]]) -> Vec<[f64; 2]> {
+    // simple merge: take the longer track as base
+    if track1.len() >= track2.len() {
+        track1.to_vec()
+    } else {
+        track2.to_vec()
+    }
+}
