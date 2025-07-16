@@ -1638,3 +1638,59 @@ fn calculate_area_km2(bbox: &[f64; 4]) -> f64 {
     width_km * height_km
 }
 
+fn cluster_similar_tracks(tracks: &[Vec<[f64; 2]>], similarity_threshold: f64) -> Vec<TrackCluster> {
+    let mut clusters = Vec::new();
+    let mut assigned = vec![false; tracks.len()];
+    
+    for i in 0..tracks.len() {
+        if assigned[i] {
+            continue;
+        }
+        
+        let mut cluster_members = vec![i as u32];
+        assigned[i] = true;
+        
+        // find similar tracks
+        for j in (i + 1)..tracks.len() {
+            if assigned[j] {
+                continue;
+            }
+            
+            let similarity = calculate_track_similarity(&tracks[i], &tracks[j]);
+            if similarity >= similarity_threshold {
+                cluster_members.push(j as u32);
+                assigned[j] = true;
+            }
+        }
+        
+        clusters.push(TrackCluster {
+            representative_track: tracks[i].clone(),
+            member_indices: cluster_members,
+            similarity_score: 1.0, // placeholder
+        });
+    }
+    
+    clusters
+}
+
+fn calculate_track_similarity(track1: &[[f64; 2]], track2: &[[f64; 2]]) -> f64 {
+    if track1.len() < 2 || track2.len() < 2 {
+        return 0.0;
+    }
+    
+    // simple similarity based on start/end point proximity
+    let start_dist = haversine_distance(track1[0][0], track1[0][1], track2[0][0], track2[0][1]);
+    let end_dist = haversine_distance(
+        track1[track1.len() - 1][0], track1[track1.len() - 1][1],
+        track2[track2.len() - 1][0], track2[track2.len() - 1][1]
+    );
+    
+    // convert distance to similarity score (closer = more similar)
+    let max_reasonable_distance = 10.0; // 10km
+    let start_similarity = (max_reasonable_distance - start_dist.min(max_reasonable_distance)) / max_reasonable_distance;
+    let end_similarity = (max_reasonable_distance - end_dist.min(max_reasonable_distance)) / max_reasonable_distance;
+    
+    (start_similarity + end_similarity) / 2.0
+}
+
+
