@@ -1,0 +1,7 @@
+.svg-icon {
+	filter: invert(5%) sepia(8%) saturate(493%) hue-rotate(169deg) brightness(94%) contrast(96%);
+}
+
+.dark .svg-icon {
+	filter: invert(100%) sepia(13%) saturate(756%) hue-rotate(177deg) brightness(96%) contrast(88%);
+}

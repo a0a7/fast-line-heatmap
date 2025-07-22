@@ -1,0 +1,82 @@
+/* This stylesheet modifies the styles
+of the @watergis/svelte-maplibre-measure
+MeasurePanel component to make them 
+match the conventions of MapLibre controls. */
+
+.maplibregl-export-control {
+	background: url('/img/icon/print.svg');
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: 70%;
+}
+.setting-button:nth-of-type(3) {
+	display: none !important;
+}
+.measure-container {
+	padding: 0px !important;
+	background-color: transparent;
+	min-height: 0px !important;
+	transform: none !important;
+	width: auto !important;
+	display: block !important;
+}
+
+.measure-container .control-button {
+	padding: 0px !important;
+	margin-left: auto;
+	margin-right: auto;
+	background-color: transparent !important;
+	min-height: 0px !important;
+	transform: none !important;
+	width: 29px !important;
+	height: 29px !important;
+	display: block !important;
+	justify-content: center !important;
+	text-align: center !important;
+	box-shadow: none !important;
+	border: 1px solid rgba(0, 0, 0, 0.1) !important;
+	border-radius: 0px !important;
+}
+.measure-container .control-button:hover {
+	background-color: rgb(0 0 0/5%) !important;
+}
+
+.measure-container .control-button :nth-child(1) {
+	color: #333;
+}
+.measure-container .control-button :nth-child(2) {
+	display: none;
+}
+.measure-container .setting-button {
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0px !important;
+	background-color: transparent !important;
+	min-height: 0px !important;
+	transform: none !important;
+	width: 29px !important;
+	height: 29px !important;
+	display: block;
+	border-radius: 0px !important;
+	box-shadow: none !important;
+}
+
+.measure-container .setting-button:hover {
+	background-color: rgb(0 0 0/5%) !important;
+}
+
+.measure-container .setting-button :nth-child(1) {
+	color: #333;
+}
+.control-button .control-icon {
+	margin-left: auto;
+	margin-right: auto;
+	padding-right: 0px !important;
+}
+.control-button .control-icon svg {
+	display: unset;
+	height: 19px !important;
+}
+.setting-button svg {
+	height: 17px !important;
+}
