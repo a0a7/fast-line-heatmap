@@ -8,15 +8,15 @@ importers:
 
   .:
     dependencies:
-      gpx_processor:
+      fastgeotoolkit:
         specifier: file:pkg
         version: file:pkg
 
 packages:
 
-  gpx_processor@file:pkg:
+  fastgeotoolkit@file:pkg:
     resolution: {directory: pkg, type: directory}
 
 snapshots:
 
-  gpx_processor@file:pkg: {}
+  fastgeotoolkit@file:pkg: {}

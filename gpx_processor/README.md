@@ -1,6 +1,6 @@
-# heatmap-parse
+# fastgeotoolkit
 
-GPS track processor for frequency-based route heatmaps from GPX, FIT, and polyline data.
+A fast and comprehensive geospatial toolkit for processing GPS tracks, trajectories, and coordinate data from GPX, FIT, and polyline formats.
 
 ## Features
 
@@ -15,7 +15,7 @@ GPS track processor for frequency-based route heatmaps from GPX, FIT, and polyli
 ### Rust
 
 ```rust
-use heatmap_parse::{process_gpx_files, decode_polyline, process_polylines};
+use fastgeotoolkit::{process_gpx_files, decode_polyline, process_polylines};
 
 let files = vec![/* Vec<u8> file data */];
 let result = process_gpx_files(files);

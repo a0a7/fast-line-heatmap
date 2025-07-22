@@ -1220,7 +1220,7 @@ pub fn coordinates_to_geojson_rust(coords: &[[f64; 2]], properties: serde_json::
 #[wasm_bindgen]
 pub fn export_to_gpx(tracks: js_sys::Array, _metadata: JsValue) -> String {
     let mut gpx_content = String::from(r#"<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="heatmap-processor">
+<gpx version="1.1" creator="fastgeotoolkit">
 "#);
     
     for i in 0..tracks.length() {
@@ -1244,7 +1244,7 @@ pub fn export_to_gpx(tracks: js_sys::Array, _metadata: JsValue) -> String {
 // gpx export
 pub fn export_to_gpx_rust(tracks: &[Vec<[f64; 2]>]) -> String {
     let mut gpx_content = String::from(r#"<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="heatmap-processor">
+<gpx version="1.1" creator="fastgeotoolkit">
 "#);
     
     for (i, track) in tracks.iter().enumerate() {

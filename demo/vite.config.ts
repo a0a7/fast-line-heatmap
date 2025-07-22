@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 	optimizeDeps: {
-		exclude: ['gpx_processor'],
+		exclude: ['fastgeotoolkit'],
 		include: [
 			'maplibre-gl',
 			'svelte-maplibre'
