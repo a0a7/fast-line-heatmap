@@ -1251,3 +1251,26 @@ pub fn export_to_gpx_rust(tracks: &[Vec<[f64; 2]>]) -> String {
     gpx_content.push_str("</gpx>");
     gpx_content
 }
+
+// analysis functions
+#[wasm_bindgen]
+pub fn find_track_intersections(tracks: js_sys::Array, tolerance: f64) -> JsValue {
+    let mut track_list = Vec::new();
+    
+    for i in 0..tracks.length() {
+        if let Ok(track) = serde_wasm_bindgen::from_value::<Vec<[f64; 2]>>(tracks.get(i)) {
+            track_list.push(track);
+        }
+    }
+    
+    let intersections = find_intersections(&track_list, tolerance);
+    serde_wasm_bindgen::to_value(&intersections).unwrap_or(JsValue::NULL)
+}
+
+// track intersections finder
+pub fn find_track_intersections_rust(tracks: &[Vec<[f64; 2]>], tolerance: f64) -> Vec<([f64; 2], Vec<u32>)> {
+    let intersections = find_intersections(tracks, tolerance);
+    intersections.into_iter()
+        .map(|ip| (ip.coordinate, ip.track_indices))
+        .collect()
+}
