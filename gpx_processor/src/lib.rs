@@ -1574,3 +1574,41 @@ fn split_by_spatial_gaps(coordinates: &[[f64; 2]], max_gap_km: f64) -> Vec<Vec<[
     
     tracks
 }
+
+fn find_intersections(tracks: &[Vec<[f64; 2]>], tolerance: f64) -> Vec<IntersectionPoint> {
+    let mut intersections = Vec::new();
+    let mut intersection_map: HashMap<String, Vec<u32>> = HashMap::new();
+    
+    // find points that are close to each other across different tracks
+    for (i, track1) in tracks.iter().enumerate() {
+        for point1 in track1 {
+            let grid_key = format!("{:.4},{:.4}", 
+                (point1[0] / tolerance).round() * tolerance,
+                (point1[1] / tolerance).round() * tolerance
+            );
+            
+            intersection_map.entry(grid_key).or_insert_with(Vec::new).push(i as u32);
+        }
+    }
+    
+    // collect intersections where multiple tracks meet
+    for (key_str, track_indices) in intersection_map {
+        if track_indices.len() > 1 {
+            let coords: Vec<f64> = key_str.split(',').map(|s| s.parse().unwrap_or(0.0)).collect();
+            if coords.len() == 2 {
+                let mut unique_tracks = track_indices;
+                unique_tracks.sort();
+                unique_tracks.dedup();
+                
+                if unique_tracks.len() > 1 {
+                    intersections.push(IntersectionPoint {
+                        coordinate: [coords[0], coords[1]],
+                        track_indices: unique_tracks,
+                    });
+                }
+            }
+        }
+    }
+    
+    intersections
+}
