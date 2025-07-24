@@ -1543,3 +1543,34 @@ fn merge_two_tracks(track1: &[[f64; 2]], track2: &[[f64; 2]]) -> Vec<[f64; 2]> {
         track2.to_vec()
     }
 }
+
+fn split_by_spatial_gaps(coordinates: &[[f64; 2]], max_gap_km: f64) -> Vec<Vec<[f64; 2]>> {
+    if coordinates.len() < 2 {
+        return vec![coordinates.to_vec()];
+    }
+    
+    let mut tracks = Vec::new();
+    let mut current_track = vec![coordinates[0]];
+    
+    for window in coordinates.windows(2) {
+        if let [current, next] = window {
+            let distance = haversine_distance(current[0], current[1], next[0], next[1]);
+            
+            if distance <= max_gap_km {
+                current_track.push(*next);
+            } else {
+                // gap detected, start new track
+                if current_track.len() > 1 {
+                    tracks.push(current_track);
+                }
+                current_track = vec![*next];
+            }
+        }
+    }
+    
+    if current_track.len() > 1 {
+        tracks.push(current_track);
+    }
+    
+    tracks
+}
