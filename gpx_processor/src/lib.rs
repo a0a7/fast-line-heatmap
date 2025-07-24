@@ -1628,3 +1628,13 @@ fn calculate_bounding_box(coordinates: &[[f64; 2]]) -> [f64; 4] {
     
     [min_lat, min_lng, max_lat, max_lng]
 }
+fn calculate_area_km2(bbox: &[f64; 4]) -> f64 {
+    let [min_lat, min_lng, max_lat, max_lng] = *bbox;
+    
+    // approximate area calculation using haversine for edges
+    let width_km = haversine_distance(min_lat, min_lng, min_lat, max_lng);
+    let height_km = haversine_distance(min_lat, min_lng, max_lat, min_lng);
+    
+    width_km * height_km
+}
+
