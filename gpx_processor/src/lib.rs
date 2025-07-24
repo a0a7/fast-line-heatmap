@@ -4,7 +4,7 @@ use std::io::Cursor;
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 
-// Define the main data structures
+// DATA STRUCTURES
 #[derive(Serialize)]
 pub struct HeatmapTrack {
     coordinates: Vec<[f64; 2]>,
@@ -55,14 +55,14 @@ pub struct TrackCluster {
     similarity_score: f64,
 }
 
-// Add a console log function for debugging
+// debugging
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
 }
 
-// Function to decode Google polyline format
+// decode Google polyline format
 pub fn decode_polyline(encoded: &str) -> Vec<[f64; 2]> {
     let mut coords = Vec::new();
     let mut lat = 0i32;
@@ -126,7 +126,7 @@ pub fn decode_polyline_string(encoded: &str) -> JsValue {
     serde_wasm_bindgen::to_value(&coords).unwrap()
 }
 
-// Process polyline strings - handles both encoded polylines and JSON coordinate arrays
+// polyline processingstep
 fn process_polyline(polyline_str: &str) -> Vec<[f64; 2]> {
     // First try to parse as JSON (RideWithGPS format)
     if let Ok(json_coords) = serde_json::from_str::<Vec<[f64; 2]>>(polyline_str) {
@@ -147,12 +147,10 @@ fn process_polyline(polyline_str: &str) -> Vec<[f64; 2]> {
     }
 }
 
-// Add a function to process polylines from strings
 #[wasm_bindgen]
 pub fn process_polylines(polylines: js_sys::Array) -> JsValue {
     let mut all_tracks: Vec<Vec<[f64; 2]>> = Vec::new();
 
-    // Process each polyline string
     for i in 0..polylines.length() {
         if let Some(polyline_str) = polylines.get(i).as_string() {
             let coords = process_polyline(&polyline_str);
@@ -301,10 +299,10 @@ pub fn process_gpx_files(files: js_sys::Array) -> JsValue {
         }
     }
     
-    // Create a segment usage map to count overlapping segments
+    // create segment usage map to count overlapping segments
     let mut segment_usage: HashMap<String, u32> = HashMap::new();
     
-    // Break each track into segments and count usage
+    // break each track into segments and count usage
     for track in &all_tracks {
         for window in track.windows(2) {
             if let [start, end] = window {
@@ -314,7 +312,7 @@ pub fn process_gpx_files(files: js_sys::Array) -> JsValue {
         }
     }
     
-    // Calculate frequency for each track based on its segments
+    // calculate frequency for each track based on its segments
     let mut heatmap_tracks = Vec::new();
     let mut max_frequency = 0;
     
@@ -323,7 +321,7 @@ pub fn process_gpx_files(files: js_sys::Array) -> JsValue {
             continue;
         }
         
-        // Calculate track frequency as the average frequency of its segments
+        // calculate track frequency as the average frequency of its segments
         let mut total_usage = 0;
         let mut segment_count = 0;
         
@@ -361,7 +359,7 @@ pub fn process_gpx_files(files: js_sys::Array) -> JsValue {
 }
 
 fn create_segment_key(start: [f64; 2], end: [f64; 2]) -> String {
-    // Use a larger tolerance for less aggressive matching
+    // change to a larger tolerance for less aggressive matching
     let tolerance = 0.001; // About 100 meters
     let snap_start = snap_to_grid(start, tolerance);
     let snap_end = snap_to_grid(end, tolerance);
@@ -417,7 +415,7 @@ fn is_valid_coordinate(lat: f64, lon: f64) -> bool {
         return false;
     }
     
-    // Check for obviously invalid coordinates (0, 0) and other common invalid values
+    // Check for obviously invalid coordinates
     if (lat == 0.0 && lon == 0.0) || lat.is_nan() || lon.is_nan() || lat.is_infinite() || lon.is_infinite() {
         return false;
     }
@@ -431,7 +429,7 @@ fn filter_unrealistic_jumps(coords: &[[f64; 2]]) -> Vec<[f64; 2]> {
     }
     
     let mut filtered = vec![coords[0]];
-    let max_jump_km = 100.0; // Back to 100km for stricter filtering
+    let max_jump_km = 100.0;
     let mut consecutive_bad_points = 0;
     const MAX_CONSECUTIVE_BAD: usize = 10; // Allow up to 10 consecutive bad points
     
@@ -514,7 +512,6 @@ fn haversine_distance(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
     r * c
 }
 
-// Custom FIT file parser for extracting GPS coordinates
 // FIT file format reference: https://developer.garmin.com/fit/protocol/
 
 struct FitParser {
@@ -942,7 +939,12 @@ fn is_fit_file(data: &[u8]) -> bool {
     data[8] == b'.' && data[9] == b'F' && data[10] == b'I' && data[11] == b'T'
 }
 
-// data processing & validation functions
+// #################################################
+// 
+//     DATA PROCESSING & VALIDATION FUNCTIONS 
+//
+// #################################################
+
 #[wasm_bindgen]
 pub fn validate_coordinates(coords: js_sys::Array) -> JsValue {
     let mut issues = Vec::new();
@@ -1083,7 +1085,12 @@ pub fn calculate_track_statistics_rust(coords: &[[f64; 2]]) -> Option<(f64, u32,
     Some((total_distance, coords.len() as u32, bbox))
 }
 
-// track manipulation functions
+// #################################################
+// 
+//          TRACK MANIPULATION FUNCTIONS 
+//
+// #################################################
+
 #[wasm_bindgen]
 pub fn simplify_coordinates(coords: js_sys::Array, tolerance: f64) -> JsValue {
     let mut coordinates = Vec::new();
@@ -1141,7 +1148,12 @@ pub fn split_track_by_gaps_rust(coords: &[[f64; 2]], max_gap_km: f64) -> Vec<Vec
     split_by_spatial_gaps(coords, max_gap_km)
 }
 
-// format conversion functions
+// #################################################
+// 
+//          FORMAT CONVERSION FUNCTIONS 
+//
+// #################################################
+
 #[wasm_bindgen]
 pub fn coordinates_to_polyline(coords: js_sys::Array) -> String {
     let mut coordinates = Vec::new();
@@ -1252,7 +1264,12 @@ pub fn export_to_gpx_rust(tracks: &[Vec<[f64; 2]>]) -> String {
     gpx_content
 }
 
-// analysis functions
+// #################################################
+// 
+//      c    TRACK ANALYSIS FUNCTIONS
+//
+// #################################################
+
 #[wasm_bindgen]
 pub fn find_track_intersections(tracks: js_sys::Array, tolerance: f64) -> JsValue {
     let mut track_list = Vec::new();
@@ -1336,7 +1353,12 @@ pub fn cluster_tracks_by_similarity_rust(tracks: &[Vec<[f64; 2]>], similarity_th
         .collect()
 }
 
-// utility functions
+// #################################################
+// 
+//     (SIMPLE) UTILITY FUNCTIONS (public) 
+//
+// #################################################
+
 #[wasm_bindgen]
 pub fn calculate_distance_between_points(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
     haversine_distance(lat1, lon1, lat2, lon2)
@@ -1384,7 +1406,12 @@ pub fn resample_track_rust(coords: &[[f64; 2]], target_point_count: usize) -> Ve
     resample_coordinates(coords, target_point_count)
 }
 
-// file information functions
+// #################################################
+// 
+//        FILE INFO/METADATA FUNCTIONS 
+//
+// #################################################
+
 #[wasm_bindgen]
 pub fn get_file_info(file_bytes: js_sys::Uint8Array) -> JsValue {
     let bytes = file_bytes.to_vec();
@@ -1453,7 +1480,12 @@ pub fn extract_file_metadata(file_bytes: js_sys::Uint8Array) -> JsValue {
     JsValue::NULL
 }
 
-// helper functions
+// #################################################
+// 
+//        HELPER FUNCTIONS (private)
+//
+// #################################################
+
 fn encode_polyline(coordinates: &[[f64; 2]]) -> String {
     let mut encoded = String::new();
     let mut prev_lat = 0i32;
