@@ -1204,3 +1204,50 @@ pub fn coordinates_to_geojson_rust(coords: &[[f64; 2]], properties: serde_json::
         "properties": properties
     })
 }
+
+#[wasm_bindgen]
+pub fn export_to_gpx(tracks: js_sys::Array, _metadata: JsValue) -> String {
+    let mut gpx_content = String::from(r#"<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="heatmap-processor">
+"#);
+    
+    for i in 0..tracks.length() {
+        if let Ok(track) = serde_wasm_bindgen::from_value::<Vec<[f64; 2]>>(tracks.get(i)) {
+            gpx_content.push_str(&format!("  <trk>\n    <name>Track {}</name>\n    <trkseg>\n", i + 1));
+            
+            for coord in track {
+                gpx_content.push_str(&format!(
+                    "      <trkpt lat=\"{:.6}\" lon=\"{:.6}\"></trkpt>\n",
+                    coord[0], coord[1]
+                ));
+            }
+            
+            gpx_content.push_str("    </trkseg>\n  </trk>\n");
+        }
+    }
+    
+    gpx_content.push_str("</gpx>");
+    gpx_content
+}
+// gpx export
+pub fn export_to_gpx_rust(tracks: &[Vec<[f64; 2]>]) -> String {
+    let mut gpx_content = String::from(r#"<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="heatmap-processor">
+"#);
+    
+    for (i, track) in tracks.iter().enumerate() {
+        gpx_content.push_str(&format!("  <trk>\n    <name>Track {}</name>\n    <trkseg>\n", i + 1));
+        
+        for coord in track {
+            gpx_content.push_str(&format!(
+                "      <trkpt lat=\"{:.6}\" lon=\"{:.6}\"></trkpt>\n",
+                coord[0], coord[1]
+            ));
+        }
+        
+        gpx_content.push_str("    </trkseg>\n  </trk>\n");
+    }
+    
+    gpx_content.push_str("</gpx>");
+    gpx_content
+}
