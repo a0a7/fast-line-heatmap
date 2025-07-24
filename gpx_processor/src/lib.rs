@@ -1384,3 +1384,40 @@ pub fn resample_track_rust(coords: &[[f64; 2]], target_point_count: usize) -> Ve
     resample_coordinates(coords, target_point_count)
 }
 
+// file information functions
+#[wasm_bindgen]
+pub fn get_file_info(file_bytes: js_sys::Uint8Array) -> JsValue {
+    let bytes = file_bytes.to_vec();
+    let mut info = FileInfo {
+        format: "unknown".to_string(),
+        track_count: 0,
+        point_count: 0,
+        valid: false,
+        file_size: bytes.len() as u32,
+    };
+    
+    // check for gpx
+    if let Ok(gpx) = read(Cursor::new(&bytes)) {
+        info.format = "gpx".to_string();
+        info.valid = true;
+        info.track_count = gpx.tracks.len() as u32;
+        
+        for track in gpx.tracks {
+            for segment in track.segments {
+                info.point_count += segment.points.len() as u32;
+            }
+        }
+    }
+    // check for fit
+    else if is_fit_file(&bytes) {
+        info.format = "fit".to_string();
+        info.valid = true;
+        info.track_count = 1; // assume single track for fit files
+        
+        let mut parser = FitParser::new(bytes);
+        let coords = parser.parse_gps_coordinates();
+        info.point_count = coords.len() as u32;
+    }
+    
+    serde_wasm_bindgen::to_value(&info).unwrap_or(JsValue::NULL)
+}
