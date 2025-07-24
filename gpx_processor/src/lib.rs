@@ -1612,3 +1612,19 @@ fn find_intersections(tracks: &[Vec<[f64; 2]>], tolerance: f64) -> Vec<Intersect
     
     intersections
 }
+
+fn calculate_bounding_box(coordinates: &[[f64; 2]]) -> [f64; 4] {
+    let mut min_lat = f64::MAX;
+    let mut max_lat = f64::MIN;
+    let mut min_lng = f64::MAX;
+    let mut max_lng = f64::MIN;
+    
+    for coord in coordinates {
+        min_lat = min_lat.min(coord[0]);
+        max_lat = max_lat.max(coord[0]);
+        min_lng = min_lng.min(coord[1]);
+        max_lng = max_lng.max(coord[1]);
+    }
+    
+    [min_lat, min_lng, max_lat, max_lng]
+}
