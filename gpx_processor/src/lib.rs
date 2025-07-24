@@ -1141,3 +1141,22 @@ pub fn split_track_by_gaps_rust(coords: &[[f64; 2]], max_gap_km: f64) -> Vec<Vec
     split_by_spatial_gaps(coords, max_gap_km)
 }
 
+// format conversion functions
+#[wasm_bindgen]
+pub fn coordinates_to_polyline(coords: js_sys::Array) -> String {
+    let mut coordinates = Vec::new();
+    
+    for i in 0..coords.length() {
+        if let Ok(coord_array) = serde_wasm_bindgen::from_value::<[f64; 2]>(coords.get(i)) {
+            coordinates.push(coord_array);
+        }
+    }
+    
+    encode_polyline(&coordinates)
+}
+
+// coordinates to polyline
+pub fn coordinates_to_polyline_rust(coords: &[[f64; 2]]) -> String {
+    encode_polyline(coords)
+}
+
