@@ -1022,4 +1022,63 @@ pub fn filter_coordinates_by_bounds_rust(coords: &[[f64; 2]], bounds: [f64; 4]) 
         .collect()
 }
 
+#[wasm_bindgen]
+pub fn calculate_track_statistics(coords: js_sys::Array) -> JsValue {
+    if coords.length() == 0 {
+        return JsValue::NULL;
+    }
+    
+    let mut coordinates = Vec::new();
+    let mut min_lat = f64::MAX;
+    let mut max_lat = f64::MIN;
+    let mut min_lng = f64::MAX;
+    let mut max_lng = f64::MIN;
+    
+    // extract coordinates and calculate bounds
+    for i in 0..coords.length() {
+        if let Ok(coord_array) = serde_wasm_bindgen::from_value::<[f64; 2]>(coords.get(i)) {
+            let [lat, lon] = coord_array;
+            coordinates.push([lat, lon]);
+            
+            min_lat = min_lat.min(lat);
+            max_lat = max_lat.max(lat);
+            min_lng = min_lng.min(lon);
+            max_lng = max_lng.max(lon);
+        }
+    }
+    
+    let mut total_distance = 0.0;
+    for window in coordinates.windows(2) {
+        if let [start, end] = window {
+            total_distance += haversine_distance(start[0], start[1], end[0], end[1]);
+        }
+    }
+    
+    let result = TrackStatistics {
+        distance_km: total_distance,
+        point_count: coordinates.len() as u32,
+        bounding_box: [min_lat, min_lng, max_lat, max_lng],
+        elevation_gain: None, // would require elevation data
+        average_speed: None,  // would require timestamp data
+    };
+    
+    serde_wasm_bindgen::to_value(&result).unwrap_or(JsValue::NULL)
+}
 
+// track statistics
+pub fn calculate_track_statistics_rust(coords: &[[f64; 2]]) -> Option<(f64, u32, [f64; 4])> {
+    if coords.is_empty() {
+        return None;
+    }
+    
+    let bbox = calculate_bounding_box(coords);
+    let mut total_distance = 0.0;
+    
+    for window in coords.windows(2) {
+        if let [start, end] = window {
+            total_distance += haversine_distance(start[0], start[1], end[0], end[1]);
+        }
+    }
+    
+    Some((total_distance, coords.len() as u32, bbox))
+}
