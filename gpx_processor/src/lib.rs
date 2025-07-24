@@ -1103,3 +1103,21 @@ pub fn simplify_coordinates(coords: js_sys::Array, tolerance: f64) -> JsValue {
 pub fn simplify_coordinates_rust(coords: &[[f64; 2]], tolerance: f64) -> Vec<[f64; 2]> {
     simplify_track(coords, tolerance)
 }
+
+#[wasm_bindgen]
+pub fn merge_nearby_tracks(tracks: js_sys::Array, distance_threshold: f64) -> JsValue {
+    let mut track_list = Vec::new();
+    
+    for i in 0..tracks.length() {
+        if let Ok(track) = serde_wasm_bindgen::from_value::<Vec<[f64; 2]>>(tracks.get(i)) {
+            track_list.push(track);
+        }
+    }
+    
+    let merged = merge_similar_tracks(&track_list, distance_threshold);
+    serde_wasm_bindgen::to_value(&merged).unwrap_or(JsValue::NULL)
+}
+// merge nearby tracks
+pub fn merge_nearby_tracks_rust(tracks: &[Vec<[f64; 2]>], distance_threshold: f64) -> Vec<Vec<[f64; 2]>> {
+    merge_similar_tracks(tracks, distance_threshold)
+}
