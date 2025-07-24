@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "build": "rollup -c",
-    "build:wasm": "wasm-pack build --target web --out-dir ../packages/javascript/wasm",
+    "build:wasm": "wasm-pack build --target web --out-dir ../dist/javascript/wasm",
     "test": "jest",
     "test:watch": "jest --watch",
     "docs": "typedoc",

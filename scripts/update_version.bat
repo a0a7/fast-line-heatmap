@@ -1,7 +1,14 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: Version update script for fastGeoToolkit
+:: Version update script for fastecho.
+echo Updated files:
+echo   - core\Cargo.toml
+echo   - core\package.json  
+echo   - dist\rust\Cargo.toml
+echo   - dist\javascript\package.json
+echo   - dist\python\pyproject.toml
+echo   - dist\python\__init__.py
 :: Updates version numbers across all package manifests
 
 if "%1"=="" (
@@ -25,10 +32,10 @@ if exist "%PROJECT_ROOT%\core\Cargo.toml" (
     echo   Updated core\Cargo.toml
 )
 
-:: Update packages/rust Cargo.toml
-if exist "%PROJECT_ROOT%\packages\rust\Cargo.toml" (
-    powershell -Command "(Get-Content '%PROJECT_ROOT%\packages\rust\Cargo.toml') -replace '^version = \".*\"', 'version = \"%NEW_VERSION%\"' | Set-Content '%PROJECT_ROOT%\packages\rust\Cargo.toml'"
-    echo   Updated packages\rust\Cargo.toml
+:: Update dist/rust Cargo.toml
+if exist "%PROJECT_ROOT%\dist\rust\Cargo.toml" (
+    powershell -Command "(Get-Content '%PROJECT_ROOT%\dist\rust\Cargo.toml') -replace '^version = \".*\"', 'version = \"%NEW_VERSION%\"' | Set-Content '%PROJECT_ROOT%\dist\rust\Cargo.toml'"
+    echo   Updated dist\rust\Cargo.toml
 )
 
 :: Update JavaScript package.json files
@@ -40,32 +47,24 @@ if exist "%PROJECT_ROOT%\core\package.json" (
     echo   Updated core\package.json
 )
 
-:: Update packages/javascript package.json
-if exist "%PROJECT_ROOT%\packages\javascript\package.json" (
-    powershell -Command "(Get-Content '%PROJECT_ROOT%\packages\javascript\package.json') -replace '\"version\": \".*\"', '\"version\": \"%NEW_VERSION%\"' | Set-Content '%PROJECT_ROOT%\packages\javascript\package.json'"
-    echo   Updated packages\javascript\package.json
+:: Update dist/javascript package.json
+if exist "%PROJECT_ROOT%\dist\javascript\package.json" (
+    powershell -Command "(Get-Content '%PROJECT_ROOT%\dist\javascript\package.json') -replace '\"version\": \".*\"', '\"version\": \"%NEW_VERSION%\"' | Set-Content '%PROJECT_ROOT%\dist\javascript\package.json'"
+    echo   Updated dist\javascript\package.json
 )
 
 :: Update Python package
 echo 🐍 Updating Python package version...
 
-if exist "%PROJECT_ROOT%\packages\python\pyproject.toml" (
-    powershell -Command "(Get-Content '%PROJECT_ROOT%\packages\python\pyproject.toml') -replace '^version = \".*\"', 'version = \"%NEW_VERSION%\"' | Set-Content '%PROJECT_ROOT%\packages\python\pyproject.toml'"
-    echo   Updated packages\python\pyproject.toml
+if exist "%PROJECT_ROOT%\dist\python\pyproject.toml" (
+    powershell -Command "(Get-Content '%PROJECT_ROOT%\dist\python\pyproject.toml') -replace '^version = \".*\"', 'version = \"%NEW_VERSION%\"' | Set-Content '%PROJECT_ROOT%\dist\python\pyproject.toml'"
+    echo   Updated dist\python\pyproject.toml
 )
 
 :: Update Python __init__.py
-if exist "%PROJECT_ROOT%\packages\python\python\fastgeotoolkit\__init__.py" (
-    powershell -Command "(Get-Content '%PROJECT_ROOT%\packages\python\python\fastgeotoolkit\__init__.py') -replace '__version__ = \".*\"', '__version__ = \"%NEW_VERSION%\"' | Set-Content '%PROJECT_ROOT%\packages\python\python\fastgeotoolkit\__init__.py'"
-    echo   Updated packages\python\__init__.py
-)
-
-:: Update R package
-echo Updating R package version...
-
-if exist "%PROJECT_ROOT%\packages\r\DESCRIPTION" (
-    powershell -Command "(Get-Content '%PROJECT_ROOT%\packages\r\DESCRIPTION') -replace '^Version: .*', 'Version: %NEW_VERSION%' | Set-Content '%PROJECT_ROOT%\packages\r\DESCRIPTION'"
-    echo   Updated packages\r\DESCRIPTION
+if exist "%PROJECT_ROOT%\dist\python\python\fastgeotoolkit\__init__.py" (
+    powershell -Command "(Get-Content '%PROJECT_ROOT%\dist\python\python\fastgeotoolkit\__init__.py') -replace '__version__ = \".*\"', '__version__ = \"%NEW_VERSION%\"' | Set-Content '%PROJECT_ROOT%\dist\python\python\fastgeotoolkit\__init__.py'"
+    echo   Updated dist\python\__init__.py
 )
 
 :: Update demo package.json
@@ -81,11 +80,10 @@ echo.
 echo Updated files:
 echo   - core\Cargo.toml
 echo   - core\package.json
-echo   - packages\rust\Cargo.toml
-echo   - packages\javascript\package.json
-echo   - packages\python\pyproject.toml
-echo   - packages\python\__init__.py
-echo   - packages\r\DESCRIPTION
+echo   - dist\rust\Cargo.toml
+echo   - dist\javascript\package.json
+echo   - dist\python\pyproject.toml
+echo   - dist\python\__init__.py
 echo   - demo\package.json
 echo.
 echo Next steps:
