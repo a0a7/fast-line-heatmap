@@ -1160,3 +1160,47 @@ pub fn coordinates_to_polyline_rust(coords: &[[f64; 2]]) -> String {
     encode_polyline(coords)
 }
 
+#[wasm_bindgen]
+pub fn coordinates_to_geojson(coords: js_sys::Array, properties: JsValue) -> JsValue {
+    let mut coordinates = Vec::new();
+    
+    for i in 0..coords.length() {
+        if let Ok(coord_array) = serde_wasm_bindgen::from_value::<[f64; 2]>(coords.get(i)) {
+            // geojson uses [lng, lat] order
+            coordinates.push([coord_array[1], coord_array[0]]);
+        }
+    }
+    
+    let props = if properties.is_null() || properties.is_undefined() {
+        serde_json::json!({})
+    } else {
+        serde_wasm_bindgen::from_value(properties).unwrap_or(serde_json::json!({}))
+    };
+    
+    let geojson = serde_json::json!({
+        "type": "Feature",
+        "geometry": {
+            "type": "LineString",
+            "coordinates": coordinates
+        },
+        "properties": props
+    });
+    
+    serde_wasm_bindgen::to_value(&geojson).unwrap_or(JsValue::NULL)
+}
+
+// coordinates to geojson (returns json value)
+pub fn coordinates_to_geojson_rust(coords: &[[f64; 2]], properties: serde_json::Value) -> serde_json::Value {
+    let coordinates: Vec<[f64; 2]> = coords.iter()
+        .map(|&[lat, lon]| [lon, lat]) // geojson uses [lng, lat] order
+        .collect();
+    
+    serde_json::json!({
+        "type": "Feature",
+        "geometry": {
+            "type": "LineString",
+            "coordinates": coordinates
+        },
+        "properties": properties
+    })
+}
