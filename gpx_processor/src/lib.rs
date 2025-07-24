@@ -1692,5 +1692,27 @@ fn calculate_track_similarity(track1: &[[f64; 2]], track2: &[[f64; 2]]) -> f64 {
     
     (start_similarity + end_similarity) / 2.0
 }
-
-
+fn resample_coordinates(coordinates: &[[f64; 2]], target_count: usize) -> Vec<[f64; 2]> {
+    if coordinates.len() <= target_count {
+        return coordinates.to_vec();
+    }
+    
+    let mut resampled = Vec::new();
+    let step = coordinates.len() as f64 / target_count as f64;
+    
+    for i in 0..target_count {
+        let index = (i as f64 * step) as usize;
+        if index < coordinates.len() {
+            resampled.push(coordinates[index]);
+        }
+    }
+    
+    // always include the last point
+    if let Some(last) = coordinates.last() {
+        if resampled.last() != Some(last) {
+            resampled.push(*last);
+        }
+    }
+    
+    resampled
+}
