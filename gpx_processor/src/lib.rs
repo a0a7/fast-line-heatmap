@@ -1082,3 +1082,24 @@ pub fn calculate_track_statistics_rust(coords: &[[f64; 2]]) -> Option<(f64, u32,
     
     Some((total_distance, coords.len() as u32, bbox))
 }
+
+// track manipulation functions
+#[wasm_bindgen]
+pub fn simplify_coordinates(coords: js_sys::Array, tolerance: f64) -> JsValue {
+    let mut coordinates = Vec::new();
+    
+    for i in 0..coords.length() {
+        if let Ok(coord_array) = serde_wasm_bindgen::from_value::<[f64; 2]>(coords.get(i)) {
+            coordinates.push(coord_array);
+        }
+    }
+    
+    let simplified = simplify_track(&coordinates, tolerance);
+    serde_wasm_bindgen::to_value(&simplified).unwrap_or(JsValue::NULL)
+}
+
+
+// simplify coordinates
+pub fn simplify_coordinates_rust(coords: &[[f64; 2]], tolerance: f64) -> Vec<[f64; 2]> {
+    simplify_track(coords, tolerance)
+}
