@@ -1,4 +1,4 @@
-use heatmap_parse::*;
+use fastgeotoolkit::*;
 
 #[cfg(test)]
 mod core_functions_tests {

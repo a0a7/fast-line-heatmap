@@ -1374,8 +1374,8 @@
           // Fallback to static files for development
           try {
             const isDev = import.meta.env.DEV;
-            const wasmJsUrl = isDev ? '/static/gpx_processor.js' : '/gpx_processor.js';
-            const wasmBgUrl = isDev ? '/static/gpx_processor_bg.wasm' : '/gpx_processor_bg.wasm';
+            const wasmJsUrl = isDev ? '/static/fastgeotoolkit.js' : '/fastgeotoolkit.js';
+            const wasmBgUrl = isDev ? '/static/fastgeotoolkit_bg.wasm' : '/fastgeotoolkit_bg.wasm';
             
             console.log('Falling back to static WASM files:', wasmJsUrl, 'and', wasmBgUrl);
             
