@@ -3,7 +3,6 @@
 [![Rust](https://img.shields.io/crates/v/fastgeotoolkit.svg)](https://crates.io/crates/fastgeotoolkit)
 [![npm](https://img.shields.io/npm/v/fastgeotoolkit.svg)](https://www.npmjs.com/package/fastgeotoolkit)
 [![PyPI](https://img.shields.io/pypi/v/fastgeotoolkit.svg)](https://pypi.org/project/fastgeotoolkit/)
-[![CRAN](https://www.r-pkg.org/badges/version/fastgeotoolkit)](https://CRAN.R-project.org/package=fastgeotoolkit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **A novel high-performance geospatial analysis framework with advanced route density mapping algorithms.**
@@ -57,21 +56,19 @@ This provides more accurate route popularity visualization compared to simple po
 
 Each implementation provides idiomatic APIs and comprehensive documentation:
 
-- **[Rust Documentation](packages/rust/README.md)** - Core implementation with examples
-- **[JavaScript/TypeScript Guide](packages/javascript/README.md)** - Browser and Node.js usage
-- **[Python Package Guide](packages/python/README.md)** - Scientific computing integration
-- **[R Package Guide](packages/r/README.md)** - Statistical analysis and visualization
+- **[Rust Documentation](dist/rust/README.md)** - Core implementation with examples
+- **[JavaScript/TypeScript Guide](dist/javascript/README.md)** - Browser and Node.js usage
+- **[Python Package Guide](dist/python/README.md)** - Scientific computing integration
 
 ## Multi-Language Architecture
 
 ```
 fastGeoToolkit/
 ├── core/          # Core Rust implementation
-├── packages/
+├── dist/
 │   ├── rust/              # Rust crate (crates.io)
 │   ├── javascript/        # JS/TS package (NPM)
-│   ├── python/           # Python package (PyPI)
-│   └── r/               # R package (CRAN)
+│   └── python/           # Python package (PyPI)
 └── demo/                 # Web demonstration
 ```
 
@@ -190,7 +187,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - **Crates.io**: [fastgeotoolkit](https://crates.io/crates/fastgeotoolkit)
 - **NPM**: [fastgeotoolkit](https://www.npmjs.com/package/fastgeotoolkit)
 - **PyPI**: [fastgeotoolkit](https://pypi.org/project/fastgeotoolkit/)
-- **CRAN**: [fastgeotoolkit](https://CRAN.R-project.org/package=fastgeotoolkit)
 
 const files = [/* Uint8Array buffers */];
 const result = process_gpx_files(files);
