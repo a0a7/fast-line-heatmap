@@ -1,17 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: Sync script for fecho Syncing Python package...
-:: Sync Python package
-if exist "%PROJECT_ROOT%\dist\python" (
-    :: Copy Rust source for Python compilation
-    if not exist "%PROJECT_ROOT%\dist\python\src" mkdir "%PROJECT_ROOT%\dist\python\src"
-    xcopy /e /y "%PROJECT_ROOT%\core\src\*" "%PROJECT_ROOT%\dist\python\src\" >nul
-    
-    :: Copy Cargo.toml for Python compilation
-    if not exist "%PROJECT_ROOT%\dist\python\Cargo.toml" (
-        copy "%PROJECT_ROOT%\core\Cargo.toml" "%PROJECT_ROOT%\dist\python\" >nul
-        echo   Created Cargo.toml for Python packageit multi-language packages
 :: This script syncs the core development code from core\ to all package directories
 
 echo Syncing fastGeoToolkit packages...
@@ -72,6 +61,19 @@ if exist "%PROJECT_ROOT%\dist\javascript" (
     cd /d "%PROJECT_ROOT%"
 ) else (
     echo   dist\javascript directory not found
+)
+
+:: Sync Python package
+if exist "%PROJECT_ROOT%\dist\python" (
+    :: Copy Rust source for Python compilation
+    if not exist "%PROJECT_ROOT%\dist\python\src" mkdir "%PROJECT_ROOT%\dist\python\src"
+    xcopy /e /y "%PROJECT_ROOT%\core\src\*" "%PROJECT_ROOT%\dist\python\src\" >nul
+    
+    :: Copy Cargo.toml for Python compilation
+    if not exist "%PROJECT_ROOT%\dist\python\Cargo.toml" (
+        copy "%PROJECT_ROOT%\core\Cargo.toml" "%PROJECT_ROOT%\dist\python\" >nul
+        echo   Created Cargo.toml for Python packageit multi-language packages
+    )
 )
 
 echo Package sync complete!

@@ -35,6 +35,7 @@ optional = true
 [features]
 default = []
 wasm = ["wasm-bindgen", "js-sys", "serde-wasm-bindgen", "web-sys"]
+js-sys = ["dep:js-sys"]
 
 [[example]]
 name = "basic_usage"

@@ -3,8 +3,8 @@ title: 'fastGeoToolkit: A High-Performance Geospatial Analysis library with Nove
 tags:
   - Geospatial computing
   - heatmap visualization
-  - WebAssembly
   - Rust
+  - WebAssembly
 authors:
   - name: Alexander Weimer
     orcid: 0009-0008-5679-3042

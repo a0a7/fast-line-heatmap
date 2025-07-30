@@ -1,3 +1,4 @@
+dist/rust/target
 core/target
 frontend/src/lib/components/WordmarkLogo.svelte
 frontend/src/lib/components/Error.svelte

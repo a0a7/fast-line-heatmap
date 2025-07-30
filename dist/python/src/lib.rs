@@ -1,8 +1,10 @@
-use wasm_bindgen::prelude::*;
 use gpx::read;
 use std::io::Cursor;
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
+
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::prelude::*;
 
 // DATA STRUCTURES
 #[derive(Serialize)]
@@ -56,6 +58,7 @@ pub struct TrackCluster {
 }
 
 // debugging
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]
@@ -120,7 +123,9 @@ pub fn decode_polyline(encoded: &str) -> Vec<[f64; 2]> {
 }
 
 // wasm export for polyline decoding
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
+
 pub fn decode_polyline_string(encoded: &str) -> JsValue {
     let coords = decode_polyline(encoded);
     serde_wasm_bindgen::to_value(&coords).unwrap()
@@ -147,6 +152,7 @@ fn process_polyline(polyline_str: &str) -> Vec<[f64; 2]> {
     }
 }
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn process_polylines(polylines: js_sys::Array) -> JsValue {
     let mut all_tracks: Vec<Vec<[f64; 2]>> = Vec::new();
@@ -235,6 +241,7 @@ fn round(value: f64) -> f64 {
     (value * 100000.0).round() / 100000.0
 }
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn process_gpx_files(files: js_sys::Array) -> JsValue {
     let mut all_tracks: Vec<Vec<[f64; 2]>> = Vec::new();
@@ -945,6 +952,7 @@ fn is_fit_file(data: &[u8]) -> bool {
 //
 // #################################################
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn validate_coordinates(coords: js_sys::Array) -> JsValue {
     let mut issues = Vec::new();
@@ -987,6 +995,7 @@ pub fn validate_coordinates_rust(coords: &[[f64; 2]]) -> (u32, Vec<String>) {
     (valid_count, issues)
 }
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn filter_coordinates_by_bounds(coords: js_sys::Array, bounds: js_sys::Array) -> JsValue {
     // bounds format: [min_lat, min_lon, max_lat, max_lon]
@@ -1024,6 +1033,7 @@ pub fn filter_coordinates_by_bounds_rust(coords: &[[f64; 2]], bounds: [f64; 4]) 
         .collect()
 }
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn calculate_track_statistics(coords: js_sys::Array) -> JsValue {
     if coords.length() == 0 {
@@ -1091,6 +1101,7 @@ pub fn calculate_track_statistics_rust(coords: &[[f64; 2]]) -> Option<(f64, u32,
 //
 // #################################################
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn simplify_coordinates(coords: js_sys::Array, tolerance: f64) -> JsValue {
     let mut coordinates = Vec::new();
@@ -1111,6 +1122,7 @@ pub fn simplify_coordinates_rust(coords: &[[f64; 2]], tolerance: f64) -> Vec<[f6
     simplify_track(coords, tolerance)
 }
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn merge_nearby_tracks(tracks: js_sys::Array, distance_threshold: f64) -> JsValue {
     let mut track_list = Vec::new();
@@ -1129,6 +1141,7 @@ pub fn merge_nearby_tracks_rust(tracks: &[Vec<[f64; 2]>], distance_threshold: f6
     merge_similar_tracks(tracks, distance_threshold)
 }
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn split_track_by_gaps(coords: js_sys::Array, max_gap_km: f64, _max_time_gap_seconds: u32) -> JsValue {
     let mut coordinates = Vec::new();
@@ -1154,6 +1167,7 @@ pub fn split_track_by_gaps_rust(coords: &[[f64; 2]], max_gap_km: f64) -> Vec<Vec
 //
 // #################################################
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn coordinates_to_polyline(coords: js_sys::Array) -> String {
     let mut coordinates = Vec::new();
@@ -1172,6 +1186,7 @@ pub fn coordinates_to_polyline_rust(coords: &[[f64; 2]]) -> String {
     encode_polyline(coords)
 }
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn coordinates_to_geojson(coords: js_sys::Array, properties: JsValue) -> JsValue {
     let mut coordinates = Vec::new();
@@ -1217,6 +1232,7 @@ pub fn coordinates_to_geojson_rust(coords: &[[f64; 2]], properties: serde_json::
     })
 }
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn export_to_gpx(tracks: js_sys::Array, _metadata: JsValue) -> String {
     let mut gpx_content = String::from(r#"<?xml version="1.0" encoding="UTF-8"?>
@@ -1270,6 +1286,7 @@ pub fn export_to_gpx_rust(tracks: &[Vec<[f64; 2]>]) -> String {
 //
 // #################################################
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn find_track_intersections(tracks: js_sys::Array, tolerance: f64) -> JsValue {
     let mut track_list = Vec::new();
@@ -1292,6 +1309,7 @@ pub fn find_track_intersections_rust(tracks: &[Vec<[f64; 2]>], tolerance: f64) -
         .collect()
 }
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn calculate_coverage_area(tracks: js_sys::Array) -> JsValue {
     let mut all_points = Vec::new();
@@ -1331,6 +1349,7 @@ pub fn calculate_coverage_area_rust(tracks: &[Vec<[f64; 2]>]) -> Option<([f64; 4
     Some((bbox, area_km2, all_points.len()))
 }
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn cluster_tracks_by_similarity(tracks: js_sys::Array, similarity_threshold: f64) -> JsValue {
     let mut track_list = Vec::new();
@@ -1359,11 +1378,11 @@ pub fn cluster_tracks_by_similarity_rust(tracks: &[Vec<[f64; 2]>], similarity_th
 //
 // #################################################
 
-#[wasm_bindgen]
 pub fn calculate_distance_between_points(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
     haversine_distance(lat1, lon1, lat2, lon2)
 }
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn get_bounding_box(coords: js_sys::Array) -> JsValue {
     let mut coordinates = Vec::new();
@@ -1387,6 +1406,7 @@ pub fn get_bounding_box_rust(coords: &[[f64; 2]]) -> [f64; 4] {
     calculate_bounding_box(coords)
 }
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn resample_track(coords: js_sys::Array, target_point_count: u32) -> JsValue {
     let mut coordinates = Vec::new();
@@ -1412,6 +1432,7 @@ pub fn resample_track_rust(coords: &[[f64; 2]], target_point_count: usize) -> Ve
 //
 // #################################################
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn get_file_info(file_bytes: js_sys::Uint8Array) -> JsValue {
     let bytes = file_bytes.to_vec();
@@ -1449,6 +1470,7 @@ pub fn get_file_info(file_bytes: js_sys::Uint8Array) -> JsValue {
     serde_wasm_bindgen::to_value(&info).unwrap_or(JsValue::NULL)
 }
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn extract_file_metadata(file_bytes: js_sys::Uint8Array) -> JsValue {
     let bytes = file_bytes.to_vec();
