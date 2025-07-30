@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Syncing packages..."
+echo "Syncing  packages..."
 
 # Colors for output
 RED='\033[0;31m'
@@ -87,19 +87,12 @@ fi
 echo -e "${GREEN}Package sync complete!${NC}"
 
 # Optional: Run basic tests
-echo ""
-read -p "Run tests for core implementation? (y/N) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "${YELLOW}Running Rust tests...${NC}"
-    cd "$PROJECT_ROOT/core"
-    cargo test
-    echo -e "${GREEN}Tests completed${NC}"
-fi
-
-echo ""
-echo -e "${GREEN}Next steps:${NC}"
-echo "  1. Review changes in each package directory"
-echo "  2. Update version numbers if needed: ./scripts/update_version.sh x.y.z"
-echo "  3. Build and test each package individually"
-echo "  4. Commit and tag for release"
+#echo ""
+#read -p "Run tests for core implementation? (y/N) " -n 1 -r
+#echo
+#if [[ $REPLY =~ ^[Yy]$ ]]; then
+echo -e "${YELLOW}Running Rust tests...${NC}"
+cd "$PROJECT_ROOT/core"
+cargo test
+echo -e "${GREEN}Tests completed${NC}"
+#fi
