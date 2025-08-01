@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastGeoToolkit Browser Test</title>
+</head>
+<body>
+    <h1>FastGeoToolkit Browser Test</h1>
+    <div id="test-results"></div>
+    
+    <script type="module">
+        // Import the built distribution
+        import * as fastgeo from './dist/index.esm.js';
+        
+        // Make it available globally for tests
+        window.fastgeo = fastgeo;
+        
+        // Test runner flag
+        window.testsReady = true;
+        
+        console.log('FastGeoToolkit loaded:', Object.keys(fastgeo));
+    </script>
+</body>
+</html>

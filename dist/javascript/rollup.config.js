@@ -27,7 +27,12 @@ export default [
         exclude: ['**/*.test.ts', '**/*.spec.ts'],
       }),
     ],
-    external: [/\.wasm$/, /wasm\/.*\.js$/],
+    external: [
+      /\.wasm$/,
+      /wasm\/.*\.js$/,
+      '../wasm/fastgeotoolkit.js',
+      '../wasm/fastgeotoolkit_bg.wasm'
+    ],
   },
   // Type declarations
   {

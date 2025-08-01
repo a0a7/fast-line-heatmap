@@ -69,12 +69,16 @@ export async function init(): Promise<void> {
     // Dynamic import of the WASM module - wasm-pack generates different exports
     const wasmInit = await import('../wasm/fastgeotoolkit.js');
     
-    // wasm-pack generates a default export that is the init function
+    // wasm-pack default export is typically the init function itself
     if (typeof wasmInit.default === 'function') {
       await wasmInit.default();
     } else {
-      // Fallback: look for common wasm-pack export patterns
-      await wasmInit.default;
+      // If default is not a function, it might be the WASM module object
+      // Try calling init if it exists
+      const wasmAny = wasmInit as any;
+      if (typeof wasmAny.init === 'function') {
+        await wasmAny.init();
+      }
     }
     
     wasmModule = wasmInit;

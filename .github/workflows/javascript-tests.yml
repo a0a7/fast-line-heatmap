@@ -77,10 +77,15 @@ jobs:
     
     - name: Run tests with coverage
       run: |
-        # Run tests and capture output
-        npm test > test_output.txt 2>&1 || true
+        # Run Node.js tests first (these will mostly skip WASM functionality)
+        echo "=== Running Node.js Tests ==="
+        npm run test:node > node_test_output.txt 2>&1 || true
         
-        # Also run tests with JSON reporter for structured output
+        # Run browser tests (these will actually test WASM functionality)
+        echo "=== Running Browser Tests ==="
+        npm run test:browser > browser_test_output.txt 2>&1 || true
+        
+        # Run all tests with JSON reporter for structured output
         npx jest --json --outputFile=test_results.json || true
         
         # Parse test results
@@ -106,8 +111,12 @@ jobs:
           ")
         else
           # Fallback: parse from text output
-          TOTAL_TESTS=$(grep -o "[0-9]* total" test_output.txt | tail -1 | awk '{print $1}' || echo "0")
-          PASSED_TESTS=$(grep -o "[0-9]* passed" test_output.txt | tail -1 | awk '{print $1}' || echo "0")
+          NODE_TOTAL=$(grep -o "[0-9]* total" node_test_output.txt | tail -1 | awk '{print $1}' || echo "0")
+          NODE_PASSED=$(grep -o "[0-9]* passed" node_test_output.txt | tail -1 | awk '{print $1}' || echo "0")
+          BROWSER_TOTAL=$(grep -o "[0-9]* total" browser_test_output.txt | tail -1 | awk '{print $1}' || echo "0")
+          BROWSER_PASSED=$(grep -o "[0-9]* passed" browser_test_output.txt | tail -1 | awk '{print $1}' || echo "0")
+          TOTAL_TESTS=$((NODE_TOTAL + BROWSER_TOTAL))
+          PASSED_TESTS=$((NODE_PASSED + BROWSER_PASSED))
         fi
         
         echo "Total tests: $TOTAL_TESTS"
@@ -144,9 +153,12 @@ jobs:
         echo "BADGE_COLOR=$COLOR" >> $GITHUB_ENV
         echo "BADGE_URL=$BADGE_URL" >> $GITHUB_ENV
         
-        # Display test output
-        echo "=== Test Output ==="
-        cat test_output.txt
+        # Display test outputs
+        echo "=== Node.js Test Output ==="
+        cat node_test_output.txt
+        echo ""
+        echo "=== Browser Test Output ==="
+        cat browser_test_output.txt
         
         # Check if all tests passed
         if [ "$PASSED_TESTS" != "$TOTAL_TESTS" ] || [ "$TOTAL_TESTS" = "0" ]; then
