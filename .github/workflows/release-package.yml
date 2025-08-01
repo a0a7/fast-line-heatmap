@@ -1,6 +1,7 @@
 name: "fastGeoToolkit Multi-Language Release"
 
 on:
+  workflow_dispatch:
   release:
     types: [created]
 
