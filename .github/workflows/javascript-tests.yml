@@ -68,7 +68,15 @@ jobs:
       working-directory: ./core
     
     - name: Install dependencies
-      run: npm ci
+      run: |
+        # Check if package-lock.json is in sync, if not run npm install
+        if npm ci --dry-run 2>/dev/null; then
+          echo "Lock file is in sync, using npm ci"
+          npm ci
+        else
+          echo "Lock file out of sync, using npm install"
+          npm install
+        fi
       working-directory: ./dist/javascript
     
     - name: Run TypeScript compilation check
