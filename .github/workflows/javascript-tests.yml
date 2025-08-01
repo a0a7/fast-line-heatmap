@@ -26,6 +26,24 @@ jobs:
         cache: 'npm'
         cache-dependency-path: 'dist/javascript/package-lock.json'
     
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: wasm32-unknown-unknown
+    
+    - name: Install wasm-pack
+      run: cargo install wasm-pack
+    
+    - name: Build WebAssembly
+      run: |
+        # Build the WASM package
+        wasm-pack build --target bundler --out-dir ../dist/javascript/wasm
+        
+        # List what was generated
+        echo "Generated WASM files:"
+        ls -la ../dist/javascript/wasm/
+      working-directory: ./core
+    
     - name: Install dependencies
       run: npm ci
       working-directory: ./dist/javascript
