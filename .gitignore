@@ -21,3 +21,4 @@ frontend/src/lib/components/sidebar/map-config-components/ActivityTypeSelect.sve
 frontend/src/lib/components/sidebar/map-config-components/BasemapSelect.svelte
 frontend/src/lib/components/sidebar/map-config-components/CommuteSelect.svelte
 frontend/src/lib/components/sidebar/map-config-components/DateRangePicker.svelte
+dist/javascript/node_modules
