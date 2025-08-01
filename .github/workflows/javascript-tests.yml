@@ -42,6 +42,25 @@ jobs:
         # List what was generated
         echo "Generated WASM files:"
         ls -la ../dist/javascript/wasm/
+        
+        # Verify the expected file exists
+        if [ -f "../dist/javascript/wasm/fastgeotoolkit.js" ]; then
+          echo "✅ fastgeotoolkit.js found"
+          echo "Content preview:"
+          head -5 ../dist/javascript/wasm/fastgeotoolkit.js
+        else
+          echo "❌ fastgeotoolkit.js not found"
+          echo "Available files:"
+          find ../dist/javascript/wasm/ -name "*.js" -o -name "*.wasm"
+          
+          # Try to find any JS files and see what they're named
+          echo "All JS files in wasm directory:"
+          find ../dist/javascript/wasm/ -name "*.js" -exec basename {} \;
+        fi
+        
+        # Also check the parent directory structure
+        echo "JavaScript directory structure:"
+        ls -la ../dist/javascript/
       working-directory: ./core
     
     - name: Install dependencies
