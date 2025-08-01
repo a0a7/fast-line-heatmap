@@ -47,7 +47,11 @@ jobs:
         if [ -f "../dist/javascript/wasm/fastgeotoolkit.js" ]; then
           echo "✅ fastgeotoolkit.js found"
           echo "Content preview:"
-          head -5 ../dist/javascript/wasm/fastgeotoolkit.js
+          head -10 ../dist/javascript/wasm/fastgeotoolkit.js
+          echo ""
+          echo "Exports inspection:"
+          # Look for export patterns
+          grep -n "export" ../dist/javascript/wasm/fastgeotoolkit.js | head -5
         else
           echo "❌ fastgeotoolkit.js not found"
           echo "Available files:"

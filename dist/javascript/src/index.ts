@@ -66,9 +66,17 @@ export async function init(): Promise<void> {
   if (wasmModule) return;
   
   try {
-    // Dynamic import of the WASM module - path will be resolved at build time
+    // Dynamic import of the WASM module - wasm-pack generates different exports
     const wasmInit = await import('../wasm/fastgeotoolkit.js');
-    await wasmInit.default();
+    
+    // wasm-pack generates a default export that is the init function
+    if (typeof wasmInit.default === 'function') {
+      await wasmInit.default();
+    } else {
+      // Fallback: look for common wasm-pack export patterns
+      await wasmInit.default;
+    }
+    
     wasmModule = wasmInit;
   } catch (error) {
     throw new Error(`Failed to initialize WebAssembly module: ${error}`);
