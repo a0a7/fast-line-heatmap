@@ -9,14 +9,14 @@ use wasm_bindgen::prelude::*;
 // DATA STRUCTURES
 #[derive(Serialize)]
 pub struct HeatmapTrack {
-    coordinates: Vec<[f64; 2]>,
-    frequency: u32,
+    pub coordinates: Vec<[f64; 2]>,
+    pub frequency: u32,
 }
 
 #[derive(Serialize)]
 pub struct HeatmapResult {
-    tracks: Vec<HeatmapTrack>,
-    max_frequency: u32,
+    pub tracks: Vec<HeatmapTrack>,
+    pub max_frequency: u32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -132,7 +132,7 @@ pub fn decode_polyline_string(encoded: &str) -> JsValue {
 }
 
 // polyline processingstep
-fn process_polyline(polyline_str: &str) -> Vec<[f64; 2]> {
+pub fn process_polyline(polyline_str: &str) -> Vec<[f64; 2]> {
     // First try to parse as JSON (RideWithGPS format)
     if let Ok(json_coords) = serde_json::from_str::<Vec<[f64; 2]>>(polyline_str) {
         // It's a JSON array of coordinates
@@ -176,7 +176,7 @@ pub fn process_polylines(polylines: js_sys::Array) -> JsValue {
 }
 
 // Helper function to create heatmap from coordinate arrays
-fn create_heatmap_from_tracks(all_tracks: Vec<Vec<[f64; 2]>>) -> HeatmapResult {
+pub fn create_heatmap_from_tracks(all_tracks: Vec<Vec<[f64; 2]>>) -> HeatmapResult {
     // Create a segment usage map to count overlapping segments
     let mut segment_usage: HashMap<String, u32> = HashMap::new();
     
@@ -237,7 +237,7 @@ fn create_heatmap_from_tracks(all_tracks: Vec<Vec<[f64; 2]>>) -> HeatmapResult {
     }
 }
 
-fn round(value: f64) -> f64 {
+pub fn round(value: f64) -> f64 {
     (value * 100000.0).round() / 100000.0
 }
 
@@ -365,7 +365,7 @@ pub fn process_gpx_files(files: js_sys::Array) -> JsValue {
     serde_wasm_bindgen::to_value(&result).unwrap()
 }
 
-fn create_segment_key(start: [f64; 2], end: [f64; 2]) -> String {
+pub fn create_segment_key(start: [f64; 2], end: [f64; 2]) -> String {
     // change to a larger tolerance for less aggressive matching
     let tolerance = 0.001; // About 100 meters
     let snap_start = snap_to_grid(start, tolerance);
@@ -381,7 +381,7 @@ fn create_segment_key(start: [f64; 2], end: [f64; 2]) -> String {
     format!("{:.4},{:.4}-{:.4},{:.4}", p1[0], p1[1], p2[0], p2[1])
 }
 
-fn snap_to_grid(point: [f64; 2], tolerance: f64) -> [f64; 2] {
+pub fn snap_to_grid(point: [f64; 2], tolerance: f64) -> [f64; 2] {
     [
         (point[0] / tolerance).round() * tolerance,
         (point[1] / tolerance).round() * tolerance,
@@ -430,7 +430,7 @@ fn is_valid_coordinate(lat: f64, lon: f64) -> bool {
     true
 }
 
-fn filter_unrealistic_jumps(coords: &[[f64; 2]]) -> Vec<[f64; 2]> {
+pub fn filter_unrealistic_jumps(coords: &[[f64; 2]]) -> Vec<[f64; 2]> {
     if coords.len() <= 1 {
         return coords.to_vec();
     }
@@ -521,27 +521,27 @@ fn haversine_distance(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
 
 // FIT file format reference: https://developer.garmin.com/fit/protocol/
 
-struct FitParser {
+pub struct FitParser {
     data: Vec<u8>,
     pos: usize,
     message_definitions: HashMap<u8, MessageDefinition>,
 }
 
 #[derive(Clone)]
-struct MessageDefinition {
+pub struct MessageDefinition {
     global_message_number: u16,
     fields: Vec<FieldDefinition>,
 }
 
 #[derive(Clone)]
-struct FieldDefinition {
+pub struct FieldDefinition {
     field_def_num: u8,
     size: u8,
     _base_type: u8,
 }
 
 impl FitParser {
-    fn new(data: Vec<u8>) -> Self {
+    pub fn new(data: Vec<u8>) -> Self {
         Self { 
             data, 
             pos: 0,
@@ -603,7 +603,7 @@ impl FitParser {
         self.pos = (self.pos + bytes).min(self.data.len());
     }
 
-    fn parse_gps_coordinates(&mut self) -> Vec<[f64; 2]> {
+    pub fn parse_gps_coordinates(&mut self) -> Vec<[f64; 2]> {
         let mut coordinates = Vec::new();
 
         // Check FIT file header
@@ -937,7 +937,7 @@ impl FitParser {
     }
 }
 
-fn is_fit_file(data: &[u8]) -> bool {
+pub fn is_fit_file(data: &[u8]) -> bool {
     if data.len() < 12 {
         return false;
     }
