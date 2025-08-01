@@ -139,10 +139,10 @@ jobs:
         badge_color = os.environ.get('BADGE_COLOR', 'red')
         
         # Create new badge
-        new_badge = f"![Tests](https://img.shields.io/badge/tests-{passed_tests}%2F{total_tests}_passed-{badge_color})"
+        new_badge = f"![Tests](https://img.shields.io/badge/rust%20tests-{passed_tests}%2F{total_tests}_passed-{badge_color})"
         
         # Replace existing badge or add new one
-        badge_pattern = r'!\[Tests\]\(https://img\.shields\.io/badge/tests-.*?\)'
+        badge_pattern = r'!\[Tests\]\(https://img\.shields\.io/badge/rust%20tests-.*?\)'
         
         if re.search(badge_pattern, content):
             # Replace existing badge

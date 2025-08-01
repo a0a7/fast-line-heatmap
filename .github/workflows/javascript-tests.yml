@@ -1,0 +1,209 @@
+name: JavaScript Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'dist/javascript/**'
+      - '.github/workflows/javascript-tests.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'dist/javascript/**'
+      - '.github/workflows/javascript-tests.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'dist/javascript/package-lock.json'
+    
+    - name: Install dependencies
+      run: npm ci
+      working-directory: ./dist/javascript
+    
+    - name: Run TypeScript compilation check
+      run: npm run build
+      working-directory: ./dist/javascript
+    
+    - name: Run tests with coverage
+      run: |
+        # Run tests and capture output
+        npm test > test_output.txt 2>&1 || true
+        
+        # Also run tests with JSON reporter for structured output
+        npx jest --json --outputFile=test_results.json || true
+        
+        # Parse test results
+        echo "Parsing test results..."
+        
+        # Extract test counts from Jest output
+        if [ -f test_results.json ]; then
+          TOTAL_TESTS=$(node -e "
+            try {
+              const results = JSON.parse(require('fs').readFileSync('test_results.json', 'utf8'));
+              console.log(results.numTotalTests || 0);
+            } catch(e) {
+              console.log(0);
+            }
+          ")
+          PASSED_TESTS=$(node -e "
+            try {
+              const results = JSON.parse(require('fs').readFileSync('test_results.json', 'utf8'));
+              console.log(results.numPassedTests || 0);
+            } catch(e) {
+              console.log(0);
+            }
+          ")
+        else
+          # Fallback: parse from text output
+          TOTAL_TESTS=$(grep -o "[0-9]* total" test_output.txt | tail -1 | awk '{print $1}' || echo "0")
+          PASSED_TESTS=$(grep -o "[0-9]* passed" test_output.txt | tail -1 | awk '{print $1}' || echo "0")
+        fi
+        
+        echo "Total tests: $TOTAL_TESTS"
+        echo "Passed tests: $PASSED_TESTS"
+        
+        # Calculate percentage
+        if [ "$TOTAL_TESTS" != "0" ]; then
+          PERCENTAGE=$(node -e "console.log(Math.round($PASSED_TESTS * 100 / $TOTAL_TESTS))")
+        else
+          PERCENTAGE="0"
+        fi
+        
+        echo "Percentage: $PERCENTAGE%"
+        
+        # Determine badge color
+        if [ "$PASSED_TESTS" = "$TOTAL_TESTS" ] && [ "$TOTAL_TESTS" != "0" ]; then
+          COLOR="brightgreen"
+        elif [ "$PERCENTAGE" -ge "80" ] 2>/dev/null; then
+          COLOR="yellow"
+        else
+          COLOR="red"
+        fi
+        
+        echo "Badge color: $COLOR"
+        
+        # Create badge URL
+        BADGE_URL="https://img.shields.io/badge/js_tests-${PASSED_TESTS}%2F${TOTAL_TESTS}_passed-${COLOR}"
+        echo "Badge URL: $BADGE_URL"
+        
+        # Save results for badge generation
+        echo "TOTAL_TESTS=$TOTAL_TESTS" >> $GITHUB_ENV
+        echo "PASSED_TESTS=$PASSED_TESTS" >> $GITHUB_ENV
+        echo "PERCENTAGE=$PERCENTAGE" >> $GITHUB_ENV
+        echo "BADGE_COLOR=$COLOR" >> $GITHUB_ENV
+        echo "BADGE_URL=$BADGE_URL" >> $GITHUB_ENV
+        
+        # Display test output
+        echo "=== Test Output ==="
+        cat test_output.txt
+        
+        # Check if all tests passed
+        if [ "$PASSED_TESTS" != "$TOTAL_TESTS" ] || [ "$TOTAL_TESTS" = "0" ]; then
+          echo "Some tests failed or no tests found"
+          exit 1
+        else
+          echo "All tests passed!"
+        fi
+      working-directory: ./dist/javascript
+    
+    - name: Update README badge
+      if: github.ref == 'refs/heads/main'
+      run: |
+        # Create a simple script to update the README
+        python3 << 'EOF'
+        import re
+        import os
+        
+        # Read the current README
+        readme_path = 'README.md'
+        if os.path.exists(readme_path):
+            with open(readme_path, 'r') as f:
+                content = f.read()
+        else:
+            content = '# fast-line-heatmap\n\n'
+        
+        # Get environment variables
+        total_tests = os.environ.get('TOTAL_TESTS', '0')
+        passed_tests = os.environ.get('PASSED_TESTS', '0')
+        badge_color = os.environ.get('BADGE_COLOR', 'red')
+        
+        # Create new JavaScript badge
+        new_badge = f"![JS Tests](https://img.shields.io/badge/js%20tests-{passed_tests}%2F{total_tests}_passed-{badge_color})"
+        
+        # Replace existing JavaScript badge or add new one
+        js_badge_pattern = r'!\[JS Tests\]\(https://img\.shields\.io/badge/js%20tests-.*?\)'
+        
+        if re.search(js_badge_pattern, content):
+            # Replace existing JavaScript badge
+            content = re.sub(js_badge_pattern, new_badge, content)
+        else:
+            # Look for existing test badge to place JS badge after it
+            test_badge_pattern = r'!\[Tests\]\(https://img\.shields\.io/badge/tests-.*?\)'
+            test_badge_match = re.search(test_badge_pattern, content)
+            
+            if test_badge_match:
+                # Add JS badge after the Rust test badge
+                existing_badge = test_badge_match.group(0)
+                content = content.replace(existing_badge, existing_badge + ' ' + new_badge)
+            else:
+                # Add badge after the title
+                lines = content.split('\n')
+                if lines and lines[0].startswith('#'):
+                    lines.insert(1, '')
+                    lines.insert(2, new_badge)
+                    lines.insert(3, '')
+                else:
+                    lines.insert(0, new_badge)
+                    lines.insert(1, '')
+                content = '\n'.join(lines)
+        
+        # Write back to README
+        with open(readme_path, 'w') as f:
+            f.write(content)
+        
+        print(f"Updated README with JS badge: {new_badge}")
+        EOF
+    
+    - name: Commit README changes
+      if: github.ref == 'refs/heads/main'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add README.md
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Update JavaScript test badge: ${{ env.PASSED_TESTS }}/${{ env.TOTAL_TESTS }} tests passing"
+          git push
+        fi
+    
+    - name: Create test summary
+      if: always()
+      run: |
+        echo "## JavaScript Test Results Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+        echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Total Tests | ${{ env.TOTAL_TESTS }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Passed | ${{ env.PASSED_TESTS }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Success Rate | ${{ env.PERCENTAGE }}% |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ env.PASSED_TESTS }}" = "${{ env.TOTAL_TESTS }}" ] && [ "${{ env.TOTAL_TESTS }}" != "0" ]; then
+          echo "### ✅ All JavaScript tests passed!" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "### ❌ Some JavaScript tests failed" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Badge:** \`![JS Tests](${{ env.BADGE_URL }})\`" >> $GITHUB_STEP_SUMMARY

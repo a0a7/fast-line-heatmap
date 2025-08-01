@@ -1,6 +1,6 @@
 # fast-line-heatmap
 
-![Tests](https://img.shields.io/badge/tests-%2F_passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-%2F_passed-brightgreen) ![JS Tests](https://img.shields.io/badge/js_tests-8%2F8_passed-brightgreen)
 ![Rust](https://img.shields.io/badge/rust-stable-orange)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
