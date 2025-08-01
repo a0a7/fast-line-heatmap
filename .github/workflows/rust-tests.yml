@@ -1,0 +1,227 @@
+name: Rust Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'core/**'
+      - '.github/workflows/rust-tests.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'core/**'
+      - '.github/workflows/rust-tests.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: clippy, rustfmt
+    
+    - name: Cache cargo registry
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          core/target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
+    
+    - name: Check formatting
+      run: cargo fmt --check
+      working-directory: ./core
+    
+    - name: Run clippy
+      run: cargo clippy -- -D warnings
+      working-directory: ./core
+    
+    - name: Run tests with coverage
+      run: |
+        # Install cargo-nextest for better test output
+        cargo install cargo-nextest --locked
+        
+        # Run tests and capture output
+        cargo nextest run --workspace --no-fail-fast > test_output.txt 2>&1 || true
+        
+        # Also run with standard cargo test for JSON output
+        cargo test --workspace -- --format=json --report-time > test_results.json 2>&1 || true
+        
+        # Parse test results
+        echo "Parsing test results..."
+        
+        # Count total tests and passed tests from nextest output
+        TOTAL_TESTS=$(grep -E "^\s*[0-9]+ tests run:" test_output.txt | tail -1 | sed -E 's/.*([0-9]+) tests run:.*/\1/' || echo "0")
+        PASSED_TESTS=$(grep -E "^\s*[0-9]+ tests run:" test_output.txt | tail -1 | sed -E 's/.*([0-9]+) passed.*/\1/' || echo "0")
+        
+        # Fallback: parse from standard test output if nextest parsing fails
+        if [ "$TOTAL_TESTS" = "0" ]; then
+          TOTAL_TESTS=$(grep -o "running [0-9]* test" test_output.txt | awk '{sum += $2} END {print sum}' || echo "0")
+          PASSED_TESTS=$(grep -c "test.*ok$" test_output.txt || echo "0")
+        fi
+        
+        echo "Total tests: $TOTAL_TESTS"
+        echo "Passed tests: $PASSED_TESTS"
+        
+        # Calculate percentage
+        if [ "$TOTAL_TESTS" != "0" ]; then
+          PERCENTAGE=$(echo "scale=1; $PASSED_TESTS * 100 / $TOTAL_TESTS" | bc)
+        else
+          PERCENTAGE="0"
+        fi
+        
+        echo "Percentage: $PERCENTAGE%"
+        
+        # Determine badge color
+        if [ "$PASSED_TESTS" = "$TOTAL_TESTS" ] && [ "$TOTAL_TESTS" != "0" ]; then
+          COLOR="brightgreen"
+        elif [ "$PERCENTAGE" -ge "80" ] 2>/dev/null; then
+          COLOR="yellow"
+        else
+          COLOR="red"
+        fi
+        
+        echo "Badge color: $COLOR"
+        
+        # Create badge URL
+        BADGE_URL="https://img.shields.io/badge/tests-${PASSED_TESTS}%2F${TOTAL_TESTS}_passed-${COLOR}"
+        echo "Badge URL: $BADGE_URL"
+        
+        # Save results for badge generation
+        echo "TOTAL_TESTS=$TOTAL_TESTS" >> $GITHUB_ENV
+        echo "PASSED_TESTS=$PASSED_TESTS" >> $GITHUB_ENV
+        echo "PERCENTAGE=$PERCENTAGE" >> $GITHUB_ENV
+        echo "BADGE_COLOR=$COLOR" >> $GITHUB_ENV
+        echo "BADGE_URL=$BADGE_URL" >> $GITHUB_ENV
+        
+        # Display test output
+        echo "=== Test Output ==="
+        cat test_output.txt
+        
+        # Check if all tests passed
+        if [ "$PASSED_TESTS" != "$TOTAL_TESTS" ] || [ "$TOTAL_TESTS" = "0" ]; then
+          echo "Some tests failed or no tests found"
+          exit 1
+        else
+          echo "All tests passed!"
+        fi
+      working-directory: ./core
+    
+    - name: Update README badge
+      if: github.ref == 'refs/heads/main'
+      run: |
+        # Create a simple script to update the README
+        python3 << 'EOF'
+        import re
+        import os
+        
+        # Read the current README
+        readme_path = 'README.md'
+        if os.path.exists(readme_path):
+            with open(readme_path, 'r') as f:
+                content = f.read()
+        else:
+            content = '# fast-line-heatmap\n\n'
+        
+        # Get environment variables
+        total_tests = os.environ.get('TOTAL_TESTS', '0')
+        passed_tests = os.environ.get('PASSED_TESTS', '0')
+        badge_color = os.environ.get('BADGE_COLOR', 'red')
+        
+        # Create new badge
+        new_badge = f"![Tests](https://img.shields.io/badge/tests-{passed_tests}%2F{total_tests}_passed-{badge_color})"
+        
+        # Replace existing badge or add new one
+        badge_pattern = r'!\[Tests\]\(https://img\.shields\.io/badge/tests-.*?\)'
+        
+        if re.search(badge_pattern, content):
+            # Replace existing badge
+            content = re.sub(badge_pattern, new_badge, content)
+        else:
+            # Add badge after the title
+            lines = content.split('\n')
+            if lines and lines[0].startswith('#'):
+                lines.insert(1, '')
+                lines.insert(2, new_badge)
+                lines.insert(3, '')
+            else:
+                lines.insert(0, new_badge)
+                lines.insert(1, '')
+            content = '\n'.join(lines)
+        
+        # Write back to README
+        with open(readme_path, 'w') as f:
+            f.write(content)
+        
+        print(f"Updated README with badge: {new_badge}")
+        EOF
+    
+    - name: Commit README changes
+      if: github.ref == 'refs/heads/main'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add README.md
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Update test badge: ${{ env.PASSED_TESTS }}/${{ env.TOTAL_TESTS }} tests passing"
+          git push
+        fi
+    
+    - name: Create test summary
+      if: always()
+      run: |
+        echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+        echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Total Tests | ${{ env.TOTAL_TESTS }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Passed | ${{ env.PASSED_TESTS }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Success Rate | ${{ env.PERCENTAGE }}% |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ env.PASSED_TESTS }}" = "${{ env.TOTAL_TESTS }}" ] && [ "${{ env.TOTAL_TESTS }}" != "0" ]; then
+          echo "### All tests passed!" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "### Some tests failed" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Badge:** \`![Tests](${{ env.BADGE_URL }})\`" >> $GITHUB_STEP_SUMMARY
+
+  benchmark:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+    
+    - name: Cache cargo
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          core/target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+    
+    - name: Run performance benchmarks
+      run: |
+        echo "Running performance benchmarks..."
+        cargo test test_performance_benchmarks --release -- --nocapture
+      working-directory: ./core
