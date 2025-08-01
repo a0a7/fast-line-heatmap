@@ -78,7 +78,7 @@ pub fn decode_polyline(encoded: &str) -> Vec<[f64; 2]> {
         let mut shift = 0;
         let mut result = 0i32;
         loop {
-            if index >= bytes.len() {
+            if index >= bytes.len() || shift >= 30 { // Prevent overflow
                 break;
             }
             let b = bytes[index] as i32 - 63;
@@ -96,7 +96,7 @@ pub fn decode_polyline(encoded: &str) -> Vec<[f64; 2]> {
         shift = 0;
         result = 0;
         loop {
-            if index >= bytes.len() {
+            if index >= bytes.len() || shift >= 30 { // Prevent overflow
                 break;
             }
             let b = bytes[index] as i32 - 63;
