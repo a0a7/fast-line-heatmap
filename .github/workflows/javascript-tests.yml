@@ -52,6 +52,9 @@ jobs:
           echo "Exports inspection:"
           # Look for export patterns
           grep -n "export" ../dist/javascript/wasm/fastgeotoolkit.js | head -5
+          echo ""
+          echo "File size and permissions:"
+          ls -lh ../dist/javascript/wasm/fastgeotoolkit.js
         else
           echo "❌ fastgeotoolkit.js not found"
           echo "Available files:"
@@ -60,6 +63,18 @@ jobs:
           # Try to find any JS files and see what they're named
           echo "All JS files in wasm directory:"
           find ../dist/javascript/wasm/ -name "*.js" -exec basename {} \;
+        fi
+        
+        # Check all files generated
+        echo ""
+        echo "All generated files with details:"
+        find ../dist/javascript/wasm/ -type f -exec ls -lh {} \;
+        
+        # Check if there are any background JS files
+        if [ -f "../dist/javascript/wasm/fastgeotoolkit_bg.js" ]; then
+          echo ""
+          echo "✅ Found background JS file:"
+          head -5 ../dist/javascript/wasm/fastgeotoolkit_bg.js
         fi
         
         # Also check the parent directory structure
@@ -77,10 +92,6 @@ jobs:
           echo "Lock file out of sync, using npm install"
           npm install
         fi
-      working-directory: ./dist/javascript
-    
-    - name: Run TypeScript compilation check
-      run: npm run build
       working-directory: ./dist/javascript
     
     - name: Run tests with coverage

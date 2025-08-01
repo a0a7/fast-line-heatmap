@@ -28,10 +28,14 @@ export default [
       }),
     ],
     external: [
+      // Exclude all WASM-related files
       /\.wasm$/,
-      /wasm\/.*\.js$/,
+      /wasm\/.*$/,
       '../wasm/fastgeotoolkit.js',
-      '../wasm/fastgeotoolkit_bg.wasm'
+      '../wasm/fastgeotoolkit_bg.wasm',
+      '../wasm/fastgeotoolkit_bg.js',
+      // Pattern matching for dynamic imports
+      (id) => id.includes('wasm/') || id.endsWith('.wasm')
     ],
   },
   // Type declarations
