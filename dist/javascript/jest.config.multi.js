@@ -38,5 +38,7 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/__tests__/**',
   ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'html'],
   verbose: true
 };

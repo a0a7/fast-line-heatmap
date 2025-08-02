@@ -1,10 +1,17 @@
-# fastgeotoolkit
+# fastgeotoolkit 
 
-![Tests](https://img.shields.io/badge/rust%20tests-%2F_passed-brightgreen)
+[![Crates.io](https://img.shields.io/crates/v/fastgeotoolkit)](https://crates.io/crates/fastgeotoolkit)
+[![PyPI](https://img.shields.io/pypi/v/fastgeotoolkit)](https://pypi.org/project/fastgeotoolkit/)
+[![npm](https://img.shields.io/npm/v/fastgeotoolkit)](https://www.npmjs.com/package/fastgeotoolkit)
 
+[![Rust Tests](https://github.com/a0a7/fastgeotoolkit/actions/workflows/rust-tests.yml/badge.svg)](https://github.com/a0a7/fastgeotoolkit/actions/workflows/rust-tests.yml)
 
-![Tests](https://img.shields.io/badge/tests-%2F_passed-brightgreen) ![JS Tests](https://img.shields.io/badge/js%20tests-8%2F8_passed-brightgreen) ![JS Tests](https://img.shields.io/badge/js_tests-8%2F8_passed-brightgreen)
-![Rust](https://img.shields.io/badge/rust-stable-orange)
+[![JavaScript Tests](https://github.com/a0a7/fastgeotoolkit/actions/workflows/javascript-tests.yml/badge.svg)](https://github.com/a0a7/fastgeotoolkit/actions/workflows/javascript-tests.yml)   
+
+[![codecov](https://codecov.io/gh/a0a7/fastgeotoolkit/branch/main/graph/badge.svg)](https://codecov.io/gh/a0a7/fastgeotoolkit)
+
+[![CodeQL](https://github.com/a0a7/fastgeotoolkit/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/a0a7/fastgeotoolkit/actions/workflows/github-code-scanning/codeql)
+
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 GPS track processor for frequency-based route heatmaps from GPX, FIT, and polyline data.
@@ -46,35 +53,13 @@ const result = process_gpx_files(files);
 const coords = decode_polyline_string("_p~iF~ps|U_ulLnnqC_mqNvxq`@");
 ```
 
-## Testing
-
-The project includes comprehensive test coverage with 56 tests covering:
-
-- **Core Functionality**: Polyline processing, heatmap generation, file parsing
-- **Geospatial Operations**: Distance calculations, intersections, coverage analysis  
-- **Data Processing**: GPS error handling, coordinate validation, track manipulation
-- **Format Support**: GPX, FIT, GeoJSON, polyline encoding/decoding
-- **Performance**: Large dataset handling (10,000+ points)
-- **Edge Cases**: Boundary values, NaN/Infinity handling, precision testing
-
-```bash
-# Run all tests
-cd core && cargo test
-
-# Run specific test suite
-cargo test comprehensive_functionality_tests
-
-# Run with output
-cargo test -- --nocapture
-```
-
 ## Building
 
 ```bash
 # Native Rust
 cargo build --release
 
-# WebAssembly
+# js
 wasm-pack build --target web
 ```
 

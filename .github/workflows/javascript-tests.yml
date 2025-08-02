@@ -155,8 +155,8 @@ jobs:
         echo "=== Running Browser Tests ==="
         npm run test:browser > browser_test_output.txt 2>&1 || true
         
-        # Run all tests with JSON reporter for structured output
-        npx jest --json --outputFile=test_results.json || true
+        # Run all tests with JSON reporter and coverage
+        npx jest --coverage --json --outputFile=test_results.json || true
         
         # Parse test results
         echo "Parsing test results..."
@@ -238,6 +238,14 @@ jobs:
           echo "All tests passed!"
         fi
       working-directory: ./dist/javascript
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./dist/javascript/coverage/lcov.info
+        flags: javascript
+        name: js-coverage
+        fail_ci_if_error: false
     
     - name: Create test summary
       if: always()

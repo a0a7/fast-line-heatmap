@@ -1,0 +1,44 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 70%
+        threshold: 5%
+    patch:
+      default:
+        target: 70%
+        threshold: 5%
+
+  ignore:
+    - "dist/*/target/**/*"
+    - "core/target/**/*"
+    - "**/tests/**/*"
+    - "**/__tests__/**/*"
+    - "**/*.test.*"
+    - "**/test_*"
+    - "demo/**/*"
+    - "paper/**/*"
+    - "scripts/**/*"
+    - "**/*.d.ts"
+
+parsers:
+  javascript:
+    enable_search: true
+  rust:
+    enable_search: true
+
+flags:
+  rust:
+    paths:
+      - core/
+  javascript:
+    paths:
+      - dist/javascript/
+  python:
+    paths:
+      - dist/python/
+
+comment:
+  layout: "header, diff, flags, components"
+  behavior: default
+  require_changes: false

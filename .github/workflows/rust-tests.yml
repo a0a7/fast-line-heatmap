@@ -48,27 +48,21 @@ jobs:
     
     - name: Run tests with coverage
       run: |
-        # Install cargo-nextest for better test output
-        cargo install cargo-nextest --locked
+        # Install cargo-tarpaulin for coverage
+        cargo install cargo-tarpaulin
         
-        # Run tests and capture output
-        cargo nextest run --workspace --no-fail-fast > test_output.txt 2>&1 || true
+        # Run tests with coverage
+        cargo tarpaulin --workspace --out xml --output-dir ./coverage/
         
-        # Also run with standard cargo test for JSON output
-        cargo test --workspace -- --format=json --report-time > test_results.json 2>&1 || true
+        # Also run normal tests for counting
+        cargo test --workspace > test_output.txt 2>&1 || true
         
         # Parse test results
         echo "Parsing test results..."
         
-        # Count total tests and passed tests from nextest output
-        TOTAL_TESTS=$(grep -E "^\s*[0-9]+ tests run:" test_output.txt | tail -1 | sed -E 's/.*([0-9]+) tests run:.*/\1/' || echo "0")
-        PASSED_TESTS=$(grep -E "^\s*[0-9]+ tests run:" test_output.txt | tail -1 | sed -E 's/.*([0-9]+) passed.*/\1/' || echo "0")
-        
-        # Fallback: parse from standard test output if nextest parsing fails
-        if [ "$TOTAL_TESTS" = "0" ]; then
-          TOTAL_TESTS=$(grep -o "running [0-9]* test" test_output.txt | awk '{sum += $2} END {print sum}' || echo "0")
-          PASSED_TESTS=$(grep -c "test.*ok$" test_output.txt || echo "0")
-        fi
+        # Count total tests and passed tests from test output
+        TOTAL_TESTS=$(grep -o "running [0-9]* test" test_output.txt | awk '{sum += $2} END {print sum}' || echo "0")
+        PASSED_TESTS=$(grep -c "test.*ok$" test_output.txt || echo "0")
         
         echo "Total tests: $TOTAL_TESTS"
         echo "Passed tests: $PASSED_TESTS"
@@ -116,6 +110,14 @@ jobs:
           echo "All tests passed!"
         fi
       working-directory: ./core
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./core/coverage/cobertura.xml
+        flags: rust
+        name: rust-coverage
+        fail_ci_if_error: false
     
     - name: Create test summary
       if: always()
