@@ -16,11 +16,6 @@ module.exports = {
       },
       testRunner: 'jest-circus/runner',
       setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-      globals: {
-        'ts-jest': {
-          isolatedModules: true,
-        },
-      },
     },
     // Browser tests configuration
     {
@@ -34,11 +29,6 @@ module.exports = {
       },
       setupFilesAfterEnv: ['<rootDir>/src/__tests__/browser-setup.ts'],
       testRunner: 'jest-circus/runner',
-      globals: {
-        'ts-jest': {
-          isolatedModules: true,
-        },
-      },
     }
   ],
   // Global timeout for all tests  
