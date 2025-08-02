@@ -1,10 +1,14 @@
 {
-  "name": "fastgeotoolkit",
+  "name": "@a0a7/fastgeotoolkit",
   "version": "0.1.6",
   "description": "A novel high-performance geospatial analysis framework with advanced route density mapping algorithms",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
+  },
   "files": [
     "dist/",
     "wasm/",
@@ -80,8 +84,5 @@
       "import": "./wasm/fastgeotoolkit.js",
       "types": "./wasm/fastgeotoolkit.d.ts"
     }
-  },
-  "publishConfig": {
-    "access": "public"
   }
 }

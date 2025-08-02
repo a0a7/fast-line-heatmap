@@ -2,16 +2,11 @@
 
 [![Crates.io](https://img.shields.io/crates/v/fastgeotoolkit)](https://crates.io/crates/fastgeotoolkit)
 [![PyPI](https://img.shields.io/pypi/v/fastgeotoolkit)](https://pypi.org/project/fastgeotoolkit/)
-[![npm](https://img.shields.io/npm/v/fastgeotoolkit)](https://www.npmjs.com/package/fastgeotoolkit)
-
-[![Rust Tests](https://github.com/a0a7/fastgeotoolkit/actions/workflows/rust-tests.yml/badge.svg)](https://github.com/a0a7/fastgeotoolkit/actions/workflows/rust-tests.yml)
-
-[![JavaScript Tests](https://github.com/a0a7/fastgeotoolkit/actions/workflows/javascript-tests.yml/badge.svg)](https://github.com/a0a7/fastgeotoolkit/actions/workflows/javascript-tests.yml)   
-
+[![npm](https://img.shields.io/npm/v/@a0a7/fastgeotoolkit)](https://github.com/a0a7/fastgeotoolkit/packages)
 [![codecov](https://codecov.io/gh/a0a7/fastgeotoolkit/branch/main/graph/badge.svg)](https://codecov.io/gh/a0a7/fastgeotoolkit)
-
+[![Rust Tests](https://github.com/a0a7/fastgeotoolkit/actions/workflows/rust-tests.yml/badge.svg)](https://github.com/a0a7/fastgeotoolkit/actions/workflows/rust-tests.yml)
+[![JavaScript Tests](https://github.com/a0a7/fastgeotoolkit/actions/workflows/javascript-tests.yml/badge.svg)](https://github.com/a0a7/fastgeotoolkit/actions/workflows/javascript-tests.yml)   
 [![CodeQL](https://github.com/a0a7/fastgeotoolkit/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/a0a7/fastgeotoolkit/actions/workflows/github-code-scanning/codeql)
-
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 GPS track processor for frequency-based route heatmaps from GPX, FIT, and polyline data.
