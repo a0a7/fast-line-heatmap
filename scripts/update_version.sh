@@ -18,14 +18,38 @@ echo "Updating Rust package versions..."
 
 # Update main core Cargo.toml
 if [ -f "$PROJECT_ROOT/core/Cargo.toml" ]; then
-    sed -i.bak "s/^version = \".*\"/version = \"$NEW_VERSION\"/" "$PROJECT_ROOT/core/Cargo.toml"
+    # Use awk to update only the version in the [package] section
+    awk -v new_version="$NEW_VERSION" '
+        /^\[package\]/ { in_package = 1 }
+        /^\[/ && !/^\[package\]/ { in_package = 0 }
+        in_package && /^version = / { $0 = "version = \"" new_version "\"" }
+        { print }
+    ' "$PROJECT_ROOT/core/Cargo.toml" > "$PROJECT_ROOT/core/Cargo.toml.tmp" && mv "$PROJECT_ROOT/core/Cargo.toml.tmp" "$PROJECT_ROOT/core/Cargo.toml"
     echo "  Updated core/Cargo.toml"
 fi
 
 # Update dist/rust Cargo.toml
 if [ -f "$PROJECT_ROOT/dist/rust/Cargo.toml" ]; then
-    sed -i.bak "s/^version = \".*\"/version = \"$NEW_VERSION\"/" "$PROJECT_ROOT/dist/rust/Cargo.toml"
+    # Use awk to update only the version in the [package] section
+    awk -v new_version="$NEW_VERSION" '
+        /^\[package\]/ { in_package = 1 }
+        /^\[/ && !/^\[package\]/ { in_package = 0 }
+        in_package && /^version = / { $0 = "version = \"" new_version "\"" }
+        { print }
+    ' "$PROJECT_ROOT/dist/rust/Cargo.toml" > "$PROJECT_ROOT/dist/rust/Cargo.toml.tmp" && mv "$PROJECT_ROOT/dist/rust/Cargo.toml.tmp" "$PROJECT_ROOT/dist/rust/Cargo.toml"
     echo "  Updated dist/rust/Cargo.toml"
+fi
+
+# Update dist/python Cargo.toml
+if [ -f "$PROJECT_ROOT/dist/python/Cargo.toml" ]; then
+    # Use awk to update only the version in the [package] section
+    awk -v new_version="$NEW_VERSION" '
+        /^\[package\]/ { in_package = 1 }
+        /^\[/ && !/^\[package\]/ { in_package = 0 }
+        in_package && /^version = / { $0 = "version = \"" new_version "\"" }
+        { print }
+    ' "$PROJECT_ROOT/dist/python/Cargo.toml" > "$PROJECT_ROOT/dist/python/Cargo.toml.tmp" && mv "$PROJECT_ROOT/dist/python/Cargo.toml.tmp" "$PROJECT_ROOT/dist/python/Cargo.toml"
+    echo "  Updated dist/python/Cargo.toml"
 fi
 
 # Update JavaScript package.json files
@@ -47,7 +71,13 @@ fi
 echo "🐍 Updating Python package version..."
 
 if [ -f "$PROJECT_ROOT/dist/python/pyproject.toml" ]; then
-    sed -i.bak "s/^version = \".*\"/version = \"$NEW_VERSION\"/" "$PROJECT_ROOT/dist/python/pyproject.toml"
+    # Use awk to update only the version in the [project] section
+    awk -v new_version="$NEW_VERSION" '
+        /^\[project\]/ { in_project = 1 }
+        /^\[/ && !/^\[project\]/ { in_project = 0 }
+        in_project && /^version = / { $0 = "version = \"" new_version "\"" }
+        { print }
+    ' "$PROJECT_ROOT/dist/python/pyproject.toml" > "$PROJECT_ROOT/dist/python/pyproject.toml.tmp" && mv "$PROJECT_ROOT/dist/python/pyproject.toml.tmp" "$PROJECT_ROOT/dist/python/pyproject.toml"
     echo "  Updated dist/python/pyproject.toml"
 fi
 
@@ -75,6 +105,7 @@ echo "Updated files:"
 echo "  - core/Cargo.toml"
 echo "  - core/package.json"
 echo "  - dist/rust/Cargo.toml"
+echo "  - dist/python/Cargo.toml"
 echo "  - dist/javascript/package.json"
 echo "  - dist/python/pyproject.toml"
 echo "  - dist/python/__init__.py"

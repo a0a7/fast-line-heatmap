@@ -28,14 +28,20 @@ echo Updating Rust package versions...
 
 :: Update main core Cargo.toml
 if exist "%PROJECT_ROOT%\core\Cargo.toml" (
-    powershell -Command "(Get-Content '%PROJECT_ROOT%\core\Cargo.toml') -replace '^version = \".*\"', 'version = \"%NEW_VERSION%\"' | Set-Content '%PROJECT_ROOT%\core\Cargo.toml'"
+    powershell -Command "$content = Get-Content '%PROJECT_ROOT%\core\Cargo.toml'; $inPackage = $false; for ($i = 0; $i -lt $content.Length; $i++) { if ($content[$i] -match '^\[package\]') { $inPackage = $true } elseif ($content[$i] -match '^\[' -and $content[$i] -notmatch '^\[package\]') { $inPackage = $false } elseif ($inPackage -and $content[$i] -match '^version = ') { $content[$i] = 'version = \"%NEW_VERSION%\"' } }; $content | Set-Content '%PROJECT_ROOT%\core\Cargo.toml'"
     echo   Updated core\Cargo.toml
 )
 
 :: Update dist/rust Cargo.toml
 if exist "%PROJECT_ROOT%\dist\rust\Cargo.toml" (
-    powershell -Command "(Get-Content '%PROJECT_ROOT%\dist\rust\Cargo.toml') -replace '^version = \".*\"', 'version = \"%NEW_VERSION%\"' | Set-Content '%PROJECT_ROOT%\dist\rust\Cargo.toml'"
+    powershell -Command "$content = Get-Content '%PROJECT_ROOT%\dist\rust\Cargo.toml'; $inPackage = $false; for ($i = 0; $i -lt $content.Length; $i++) { if ($content[$i] -match '^\[package\]') { $inPackage = $true } elseif ($content[$i] -match '^\[' -and $content[$i] -notmatch '^\[package\]') { $inPackage = $false } elseif ($inPackage -and $content[$i] -match '^version = ') { $content[$i] = 'version = \"%NEW_VERSION%\"' } }; $content | Set-Content '%PROJECT_ROOT%\dist\rust\Cargo.toml'"
     echo   Updated dist\rust\Cargo.toml
+)
+
+:: Update dist/python Cargo.toml
+if exist "%PROJECT_ROOT%\dist\python\Cargo.toml" (
+    powershell -Command "$content = Get-Content '%PROJECT_ROOT%\dist\python\Cargo.toml'; $inPackage = $false; for ($i = 0; $i -lt $content.Length; $i++) { if ($content[$i] -match '^\[package\]') { $inPackage = $true } elseif ($content[$i] -match '^\[' -and $content[$i] -notmatch '^\[package\]') { $inPackage = $false } elseif ($inPackage -and $content[$i] -match '^version = ') { $content[$i] = 'version = \"%NEW_VERSION%\"' } }; $content | Set-Content '%PROJECT_ROOT%\dist\python\Cargo.toml'"
+    echo   Updated dist\python\Cargo.toml
 )
 
 :: Update JavaScript package.json files
@@ -57,7 +63,7 @@ if exist "%PROJECT_ROOT%\dist\javascript\package.json" (
 echo 🐍 Updating Python package version...
 
 if exist "%PROJECT_ROOT%\dist\python\pyproject.toml" (
-    powershell -Command "(Get-Content '%PROJECT_ROOT%\dist\python\pyproject.toml') -replace '^version = \".*\"', 'version = \"%NEW_VERSION%\"' | Set-Content '%PROJECT_ROOT%\dist\python\pyproject.toml'"
+    powershell -Command "$content = Get-Content '%PROJECT_ROOT%\dist\python\pyproject.toml'; $inProject = $false; for ($i = 0; $i -lt $content.Length; $i++) { if ($content[$i] -match '^\[project\]') { $inProject = $true } elseif ($content[$i] -match '^\[' -and $content[$i] -notmatch '^\[project\]') { $inProject = $false } elseif ($inProject -and $content[$i] -match '^version = ') { $content[$i] = 'version = \"%NEW_VERSION%\"' } }; $content | Set-Content '%PROJECT_ROOT%\dist\python\pyproject.toml'"
     echo   Updated dist\python\pyproject.toml
 )
 

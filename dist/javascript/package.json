@@ -1,6 +1,6 @@
 {
   "name": "fastgeotoolkit",
-  "version": "0.1.3",
+  "version": "0.1.6",
   "description": "A novel high-performance geospatial analysis framework with advanced route density mapping algorithms",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

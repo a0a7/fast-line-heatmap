@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "fastgeotoolkit"
-version = "0.1.3"
+version = "0.1.6"
 description = "A novel high-performance geospatial analysis framework with advanced route density mapping algorithms"
 authors = [
     {name = "fastGeoToolkit Contributors", email = "contact@fastgeotoolkit.dev"}

@@ -57,9 +57,9 @@ from .utils import (
     create_folium_map,
 )
 
-__version__ = "0.1.3"
-__author__ = "fastGeoToolkit Contributors"
-__email__ = "contact@fastgeotoolkit.dev"
+__version__ = "0.1.6"
+__author__ = "a0a7"
+__email__ = "contact@a0.ax"
 __license__ = "MIT"
 
 __all__ = [
