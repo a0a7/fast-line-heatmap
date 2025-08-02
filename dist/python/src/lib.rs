@@ -6,6 +6,10 @@ use std::collections::HashMap;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
+use pyo3::prelude::*;
+use pyo3::wrap_pyfunction;
+use pyo3::types::{PyList, PyDict};
+
 // DATA STRUCTURES
 #[derive(Serialize)]
 pub struct HeatmapTrack {
@@ -1769,4 +1773,128 @@ fn resample_coordinates(coordinates: &[[f64; 2]], target_count: usize) -> Vec<[f
     }
     
     resampled
+}
+
+// #################################################
+// 
+//        PYTHON BINDINGS (PyO3)
+//
+// #################################################
+
+/// Decode a polyline string into coordinates
+#[pyfunction]
+fn py_decode_polyline(encoded: &str) -> Vec<[f64; 2]> {
+    decode_polyline(encoded)
+}
+
+/// Validate coordinates and return validation results
+#[pyfunction]
+fn py_validate_coordinates(coordinates: Vec<[f64; 2]>) -> (u32, Vec<String>) {
+    validate_coordinates_rust(&coordinates)
+}
+
+/// Calculate track statistics
+#[pyfunction]
+fn py_calculate_track_statistics(coordinates: Vec<[f64; 2]>) -> Option<(f64, u32, [f64; 4])> {
+    calculate_track_statistics_rust(&coordinates)
+}
+
+/// Simplify coordinates using tolerance
+#[pyfunction]
+fn py_simplify_coordinates(coordinates: Vec<[f64; 2]>, tolerance: f64) -> Vec<[f64; 2]> {
+    simplify_coordinates_rust(&coordinates, tolerance)
+}
+
+/// Filter coordinates by bounding box
+#[pyfunction]
+fn py_filter_coordinates_by_bounds(coordinates: Vec<[f64; 2]>, bounds: [f64; 4]) -> Vec<[f64; 2]> {
+    filter_coordinates_by_bounds_rust(&coordinates, bounds)
+}
+
+/// Convert coordinates to polyline string
+#[pyfunction]
+fn py_coordinates_to_polyline(coordinates: Vec<[f64; 2]>) -> String {
+    coordinates_to_polyline_rust(&coordinates)
+}
+
+/// Get bounding box for coordinates
+#[pyfunction]
+fn py_get_bounding_box(coordinates: Vec<[f64; 2]>) -> [f64; 4] {
+    get_bounding_box_rust(&coordinates)
+}
+
+/// Calculate distance between two points
+#[pyfunction]
+fn py_calculate_distance(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
+    calculate_distance_between_points(lat1, lon1, lat2, lon2)
+}
+
+/// Process polyline string (handles both JSON and encoded formats)
+#[pyfunction]
+fn py_process_polyline(polyline_str: &str) -> Vec<[f64; 2]> {
+    process_polyline(polyline_str)
+}
+
+/// Split track by spatial gaps
+#[pyfunction]
+fn py_split_track_by_gaps(coordinates: Vec<[f64; 2]>, max_gap_km: f64) -> Vec<Vec<[f64; 2]>> {
+    split_track_by_gaps_rust(&coordinates, max_gap_km)
+}
+
+/// Merge nearby tracks
+#[pyfunction]
+fn py_merge_nearby_tracks(tracks: Vec<Vec<[f64; 2]>>, distance_threshold: f64) -> Vec<Vec<[f64; 2]>> {
+    merge_nearby_tracks_rust(&tracks, distance_threshold)
+}
+
+/// Find track intersections
+#[pyfunction]
+fn py_find_track_intersections(tracks: Vec<Vec<[f64; 2]>>, tolerance: f64) -> Vec<([f64; 2], Vec<u32>)> {
+    find_track_intersections_rust(&tracks, tolerance)
+}
+
+/// Calculate coverage area for tracks
+#[pyfunction]
+fn py_calculate_coverage_area(tracks: Vec<Vec<[f64; 2]>>) -> Option<([f64; 4], f64, usize)> {
+    calculate_coverage_area_rust(&tracks)
+}
+
+/// Cluster tracks by similarity
+#[pyfunction]
+fn py_cluster_tracks_by_similarity(tracks: Vec<Vec<[f64; 2]>>, similarity_threshold: f64) -> Vec<(Vec<[f64; 2]>, Vec<u32>, f64)> {
+    cluster_tracks_by_similarity_rust(&tracks, similarity_threshold)
+}
+
+/// Resample track to target point count
+#[pyfunction]
+fn py_resample_track(coordinates: Vec<[f64; 2]>, target_point_count: usize) -> Vec<[f64; 2]> {
+    resample_track_rust(&coordinates, target_point_count)
+}
+
+/// Export tracks to GPX format
+#[pyfunction]
+fn py_export_to_gpx(tracks: Vec<Vec<[f64; 2]>>) -> String {
+    export_to_gpx_rust(&tracks)
+}
+
+/// PyO3 module definition
+#[pymodule]
+fn fastgeotoolkit(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(py_decode_polyline, m)?)?;
+    m.add_function(wrap_pyfunction!(py_validate_coordinates, m)?)?;
+    m.add_function(wrap_pyfunction!(py_calculate_track_statistics, m)?)?;
+    m.add_function(wrap_pyfunction!(py_simplify_coordinates, m)?)?;
+    m.add_function(wrap_pyfunction!(py_filter_coordinates_by_bounds, m)?)?;
+    m.add_function(wrap_pyfunction!(py_coordinates_to_polyline, m)?)?;
+    m.add_function(wrap_pyfunction!(py_get_bounding_box, m)?)?;
+    m.add_function(wrap_pyfunction!(py_calculate_distance, m)?)?;
+    m.add_function(wrap_pyfunction!(py_process_polyline, m)?)?;
+    m.add_function(wrap_pyfunction!(py_split_track_by_gaps, m)?)?;
+    m.add_function(wrap_pyfunction!(py_merge_nearby_tracks, m)?)?;
+    m.add_function(wrap_pyfunction!(py_find_track_intersections, m)?)?;
+    m.add_function(wrap_pyfunction!(py_calculate_coverage_area, m)?)?;
+    m.add_function(wrap_pyfunction!(py_cluster_tracks_by_similarity, m)?)?;
+    m.add_function(wrap_pyfunction!(py_resample_track, m)?)?;
+    m.add_function(wrap_pyfunction!(py_export_to_gpx, m)?)?;
+    Ok(())
 }
