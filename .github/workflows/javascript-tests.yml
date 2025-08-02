@@ -38,7 +38,7 @@ jobs:
       run: |
         # Build the WASM package from core directory
         cd core
-        wasm-pack build --target bundler --out-dir ../dist/javascript/wasm
+        wasm-pack build --target web --out-dir ../dist/javascript/wasm --allow-dirty
         
         # List what was generated
         echo "Generated WASM files:"
@@ -81,6 +81,32 @@ jobs:
         # Also check the parent directory structure
         echo "JavaScript directory structure:"
         ls -la ../dist/javascript/
+        
+        # Verify WASM files have correct MIME types would be served
+        echo ""
+        echo "WASM file verification:"
+        if [ -f "../dist/javascript/wasm/fastgeotoolkit_bg.wasm" ]; then
+          echo "✅ WASM binary file exists: $(ls -lh ../dist/javascript/wasm/fastgeotoolkit_bg.wasm)"
+          file ../dist/javascript/wasm/fastgeotoolkit_bg.wasm
+        else
+          echo "❌ WASM binary file missing"
+        fi
+        
+        # Test that JavaScript file can be loaded
+        if [ -f "../dist/javascript/wasm/fastgeotoolkit.js" ]; then
+          echo "✅ Testing JS file structure:"
+          echo "Checking for key exports..."
+          if grep -q "export.*init" ../dist/javascript/wasm/fastgeotoolkit.js; then
+            echo "  ✅ Has init export"
+          else
+            echo "  ❌ Missing init export"
+          fi
+          if grep -q "export.*decode_polyline" ../dist/javascript/wasm/fastgeotoolkit.js; then
+            echo "  ✅ Has decode_polyline export"
+          else
+            echo "  ❌ Missing decode_polyline export"
+          fi
+        fi
     
     - name: Install dependencies
       run: |
@@ -91,6 +117,31 @@ jobs:
         else
           echo "Lock file out of sync, using npm install"
           npm install
+        fi
+      working-directory: ./dist/javascript
+    
+    - name: Build JavaScript package
+      run: |
+        # Build the JavaScript package to ensure TypeScript is compiled
+        echo "Building JavaScript package..."
+        npm run build
+        
+        # Verify the build outputs exist
+        echo "Build verification:"
+        if [ -f "dist/index.js" ]; then
+          echo "✅ CommonJS build exists"
+        else
+          echo "❌ CommonJS build missing"
+        fi
+        if [ -f "dist/index.esm.js" ]; then
+          echo "✅ ES module build exists"
+        else
+          echo "❌ ES module build missing"
+        fi
+        if [ -f "dist/index.d.ts" ]; then
+          echo "✅ TypeScript definitions exist"
+        else
+          echo "❌ TypeScript definitions missing"
         fi
       working-directory: ./dist/javascript
     
