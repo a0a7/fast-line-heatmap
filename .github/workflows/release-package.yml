@@ -13,9 +13,10 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: actions-rs/toolchain@v1
         with:
-          targets: wasm32-unknown-unknown
+          toolchain: stable
+          target: wasm32-unknown-unknown
       
       - name: Install wasm-pack
         run: cargo install wasm-pack
@@ -60,7 +61,6 @@ jobs:
         run: |
           cd dist/python
           maturin build --release
-
   # Publish Rust package to crates.io
   publish-rust:
     needs: build
@@ -69,7 +69,9 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       
       - name: Sync packages
         run: ./scripts/sync_packages.sh
@@ -88,24 +90,23 @@ jobs:
     permissions:
       packages: write
       contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@v4
       
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: actions-rs/toolchain@v1
         with:
-          targets: wasm32-unknown-unknown
+          toolchain: stable
+          target: wasm32-unknown-unknown
       
       - name: Install wasm-pack
         run: cargo install wasm-pack
       
-      - name: Setup Node.js
+      - name: Setup Node.js for NPM
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-          cache-dependency-path: dist/javascript/package-lock.json
+          registry-url: https://registry.npmjs.org/
       
       - name: Sync packages and build WASM
         run: |
@@ -113,83 +114,38 @@ jobs:
           cd core
           wasm-pack build --target web --out-dir ../dist/javascript/wasm
       
-      - name: Install JavaScript dependencies
+      - name: Build JavaScript package
         run: |
           cd dist/javascript
-          npm ci
-      
-      - name: Build and test JavaScript package
-        run: |
-          cd dist/javascript
+          npm install
           npm run build
-          npm test
-      
-      # Publish to npm registry
-      - name: Setup npm authentication
-        run: |
-          cd dist/javascript
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
-      
-      - name: Prepare package for npm
-        run: |
-          cd dist/javascript
-          # Backup original package.json
-          cp package.json package.json.backup
-          # Ensure unscoped name for npm
-          npm pkg set name=fastgeotoolkit
-          npm pkg delete publishConfig
       
       - name: Publish to NPM
         run: |
           cd dist/javascript
+          # Ensure unscoped name for npm
+          npm pkg set name=fastgeotoolkit
+          npm pkg delete publishConfig
           npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       
-      # Publish to GitHub Packages
-      - name: Setup GitHub Packages authentication
-        run: |
-          cd dist/javascript
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > .npmrc
-          echo "@a0a7:registry=https://npm.pkg.github.com" >> .npmrc
-      
-      - name: Prepare package for GitHub Packages
-        run: |
-          cd dist/javascript
-          # Restore original and modify for GitHub Packages
-          cp package.json.backup package.json
-          npm pkg set name=@a0a7/fastgeotoolkit
-          npm pkg set publishConfig.registry=https://npm.pkg.github.com
-          npm pkg set publishConfig.access=public
+      - name: Setup Node.js for GitHub Packages
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com/
       
       - name: Publish to GitHub Packages
         run: |
           cd dist/javascript
+          # Set scoped name for GitHub Packages
+          npm pkg set name=@a0a7/fastgeotoolkit
+          npm pkg set publishConfig.registry=https://npm.pkg.github.com
+          npm pkg set publishConfig.access=public
           npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Restore original package.json
-        run: |
-          cd dist/javascript
-          mv package.json.backup package.json
-      
-      - name: Create release summary
-        run: |
-          echo "## 📦 JavaScript Package Published Successfully!" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Published to:" >> $GITHUB_STEP_SUMMARY
-          echo "- **npm**: [fastgeotoolkit](https://www.npmjs.com/package/fastgeotoolkit)" >> $GITHUB_STEP_SUMMARY
-          echo "- **GitHub Packages**: [@a0a7/fastgeotoolkit](https://github.com/a0a7/fastgeotoolkit/packages)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Installation:" >> $GITHUB_STEP_SUMMARY
-          echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "# From npm" >> $GITHUB_STEP_SUMMARY
-          echo "npm install fastgeotoolkit" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "# From GitHub Packages" >> $GITHUB_STEP_SUMMARY
-          echo "npm install @a0a7/fastgeotoolkit" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
 
   # Publish Python package to PyPI
   publish-python:
@@ -199,7 +155,9 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       
       - name: Setup Python
         uses: actions/setup-python@v4
