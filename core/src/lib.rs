@@ -930,7 +930,10 @@ impl FitParser {
         }
     }
 
-    pub fn parse_flexible_gps_message(&mut self, definition: &MessageDefinition) -> Option<[f64; 2]> {
+    pub fn parse_flexible_gps_message(
+        &mut self,
+        definition: &MessageDefinition,
+    ) -> Option<[f64; 2]> {
         let mut lat: Option<f64> = None;
         let mut lon: Option<f64> = None;
         let mut potential_coords = Vec::new();
