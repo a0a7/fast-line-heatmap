@@ -14,7 +14,13 @@ module.exports = {
         '\\.(wasm)$': 'identity-obj-proxy',
         '^(\\.{1,2}/.*)\\.js$': '$1',
       },
-      testTimeout: 30000,
+      testRunner: 'jest-circus/runner',
+      setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+      globals: {
+        'ts-jest': {
+          isolatedModules: true,
+        },
+      },
     },
     // Browser tests configuration
     {
@@ -26,10 +32,17 @@ module.exports = {
       transform: {
         '^.+\\.(ts|tsx)$': 'ts-jest',
       },
-      testTimeout: 60000, // Longer timeout for browser tests
       setupFilesAfterEnv: ['<rootDir>/src/__tests__/browser-setup.ts'],
+      testRunner: 'jest-circus/runner',
+      globals: {
+        'ts-jest': {
+          isolatedModules: true,
+        },
+      },
     }
   ],
+  // Global timeout for all tests  
+  testTimeout: 60000,
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',

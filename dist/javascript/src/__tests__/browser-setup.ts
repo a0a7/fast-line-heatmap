@@ -18,6 +18,7 @@ beforeAll(async () => {
     
     // Serve files with correct MIME types
     if (filePath.endsWith('.wasm')) {
+      // Use application/wasm for optimal performance
       res.setHeader('Content-Type', 'application/wasm');
     } else if (filePath.endsWith('.js')) {
       res.setHeader('Content-Type', 'application/javascript');
