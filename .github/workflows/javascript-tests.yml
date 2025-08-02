@@ -38,7 +38,7 @@ jobs:
       run: |
         # Build the WASM package from core directory
         cd core
-        wasm-pack build --target web --out-dir ../dist/javascript/wasm --allow-dirty
+        wasm-pack build --target web --out-dir ../dist/javascript/wasm
         
         # List what was generated
         echo "Generated WASM files:"
