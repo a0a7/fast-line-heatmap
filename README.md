@@ -1,4 +1,4 @@
-# fast-line-heatmap
+# fastgeotoolkit
 
 ![Tests](https://img.shields.io/badge/rust%20tests-%2F_passed-brightgreen)
 

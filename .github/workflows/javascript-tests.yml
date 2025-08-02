@@ -202,7 +202,7 @@ jobs:
             with open(readme_path, 'r') as f:
                 content = f.read()
         else:
-            content = '# fast-line-heatmap\n\n'
+            content = '# fastgeotoolkit\n\n'
         
         # Get environment variables
         total_tests = os.environ.get('TOTAL_TESTS', '0')

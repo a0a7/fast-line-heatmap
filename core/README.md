@@ -170,7 +170,7 @@ If you use fastGeoToolkit in academic research, please cite:
   title={fastGeoToolkit: A Novel High-Performance Geospatial Analysis Framework with Advanced Route Density Mapping},
   author={fastGeoToolkit Contributors},
   year={2024},
-  url={https://github.com/strava-tools/fastgeotoolkit},
+  url={https://github.com/a0a7/fastgeotoolkit},
   version={0.1.3}
 }
 ```
@@ -181,9 +181,9 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Links
 
-- **Documentation**: [GitHub Pages](https://strava-tools.github.io/fastgeotoolkit)
-- **Issues**: [GitHub Issues](https://github.com/strava-tools/fastgeotoolkit/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/strava-tools/fastgeotoolkit/discussions)
+- **Documentation**: [GitHub Pages](https://a0a7.github.io/fastgeotoolkit)
+- **Issues**: [GitHub Issues](https://github.com/a0a7/fastgeotoolkit/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/a0a7/fastgeotoolkit/discussions)
 - **Crates.io**: [fastgeotoolkit](https://crates.io/crates/fastgeotoolkit)
 - **NPM**: [fastgeotoolkit](https://www.npmjs.com/package/fastgeotoolkit)
 - **PyPI**: [fastgeotoolkit](https://pypi.org/project/fastgeotoolkit/)

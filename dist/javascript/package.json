@@ -39,11 +39,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/strava-tools/fastgeotoolkit.git"
+    "url": "https://github.com/a0a7/fastgeotoolkit.git"
   },
-  "homepage": "https://github.com/strava-tools/fastgeotoolkit",
+  "homepage": "https://github.com/a0a7/fastgeotoolkit",
   "bugs": {
-    "url": "https://github.com/strava-tools/fastgeotoolkit/issues"
+    "url": "https://github.com/a0a7/fastgeotoolkit/issues"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",

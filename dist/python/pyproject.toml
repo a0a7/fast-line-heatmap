@@ -11,8 +11,8 @@ authors = [
 ]
 license = {text = "MIT"}
 readme = "README.md"
-homepage = "https://github.com/strava-tools/fastgeotoolkit"
-repository = "https://github.com/strava-tools/fastgeotoolkit"
+homepage = "https://github.com/a0a7/fastgeotoolkit"
+repository = "https://github.com/a0a7/fastgeotoolkit"
 documentation = "https://fastgeotoolkit.readthedocs.io"
 keywords = [
     "gps", "geospatial", "trajectory", "route-density", "heatmap", 
@@ -63,8 +63,8 @@ all = [
 ]
 
 [project.urls]
-"Bug Reports" = "https://github.com/strava-tools/fastgeotoolkit/issues"
-"Source" = "https://github.com/strava-tools/fastgeotoolkit"
+"Bug Reports" = "https://github.com/a0a7/fastgeotoolkit/issues"
+"Source" = "https://github.com/a0a7/fastgeotoolkit"
 "Documentation" = "https://fastgeotoolkit.readthedocs.io"
 
 [tool.maturin]

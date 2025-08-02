@@ -410,7 +410,7 @@ If you use fastGeoToolkit in research, please cite:
   title={fastGeoToolkit: A Novel High-Performance Geospatial Analysis Framework with Advanced Route Density Mapping},
   author={fastGeoToolkit Contributors},
   year={2024},
-  url={https://github.com/strava-tools/fastgeotoolkit},
+  url={https://github.com/a0a7/fastgeotoolkit},
   version={0.1.3}
 }
 ```
