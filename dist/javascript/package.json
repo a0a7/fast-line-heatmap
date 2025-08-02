@@ -1,14 +1,10 @@
 {
-  "name": "@a0a7/fastgeotoolkit",
+  "name": "fastgeotoolkit",
   "version": "0.1.6",
   "description": "A novel high-performance geospatial analysis framework with advanced route density mapping algorithms",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com",
-    "access": "public"
-  },
   "files": [
     "dist/",
     "wasm/",
@@ -25,7 +21,10 @@
     "docs": "typedoc",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*.ts",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "publish:dual": "bash publish-dual.sh",
+    "publish:npm": "npm publish --access public",
+    "publish:github": "npm publish --registry https://npm.pkg.github.com"
   },
   "keywords": [
     "gps",

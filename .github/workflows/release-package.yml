@@ -1,4 +1,4 @@
-name: "fastGeoToolkit Multi-Language Release"
+name: "release package on all platforms"
 
 on:
   workflow_dispatch:
@@ -124,7 +124,10 @@ jobs:
       - name: Publish to NPM
         run: |
           cd dist/javascript
-          npm publish
+          # Ensure unscoped name for npm
+          npm pkg set name=fastgeotoolkit
+          npm pkg delete publishConfig
+          npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       
@@ -137,6 +140,10 @@ jobs:
       - name: Publish to GitHub Packages
         run: |
           cd dist/javascript
+          # Set scoped name for GitHub Packages
+          npm pkg set name=@a0a7/fastgeotoolkit
+          npm pkg set publishConfig.registry=https://npm.pkg.github.com
+          npm pkg set publishConfig.access=public
           npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

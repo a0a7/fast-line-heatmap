@@ -1,0 +1,5 @@
+# Example .npmrc for using GitHub Packages
+# Uncomment and add your token to use @a0a7/fastgeotoolkit from GitHub Packages
+
+# @a0a7:registry=https://npm.pkg.github.com
+# //npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
