@@ -16,25 +16,35 @@ beforeAll(async () => {
     const url = req.url || '/';
     let filePath = path.join(__dirname, '../../', url === '/' ? 'test.html' : url);
     
-    // Serve WASM files with correct MIME type
+    // Serve files with correct MIME types
     if (filePath.endsWith('.wasm')) {
       res.setHeader('Content-Type', 'application/wasm');
     } else if (filePath.endsWith('.js')) {
       res.setHeader('Content-Type', 'application/javascript');
     } else if (filePath.endsWith('.html')) {
       res.setHeader('Content-Type', 'text/html');
+    } else if (filePath.endsWith('.json')) {
+      res.setHeader('Content-Type', 'application/json');
     }
     
     // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+      res.writeHead(200);
+      res.end();
+      return;
+    }
     
     try {
       const content = fs.readFileSync(filePath);
       res.writeHead(200);
       res.end(content);
     } catch (error) {
+      console.error(`Failed to serve ${filePath}:`, error);
       res.writeHead(404);
       res.end('Not found');
     }

@@ -10,19 +10,25 @@
     <div id="test-results"></div>
     
     <script type="module">
-        // Import the WASM module directly for testing
-        import init, * as fastgeo from './wasm/fastgeotoolkit.js';
-        
-        // Initialize WASM
-        await init();
-        
-        // Make it available globally for tests
-        window.fastgeo = { init, ...fastgeo };
-        
-        // Test runner flag
-        window.testsReady = true;
-        
-        console.log('FastGeoToolkit loaded:', Object.keys(window.fastgeo));
+        try {
+            // Import the WASM module directly for testing
+            const module = await import('./wasm/fastgeotoolkit.js');
+            
+            // Initialize WASM with modern syntax
+            await module.default();
+            
+            // Make it available globally for tests
+            window.fastgeo = { init: module.default, ...module };
+            
+            // Test runner flag
+            window.testsReady = true;
+            
+            console.log('FastGeoToolkit loaded:', Object.keys(window.fastgeo));
+        } catch (error) {
+            console.error('Failed to load FastGeoToolkit:', error);
+            window.fastgeo = {};
+            window.testsReady = true; // Set flag anyway so tests can run and fail gracefully
+        }
     </script>
 </body>
 </html>
