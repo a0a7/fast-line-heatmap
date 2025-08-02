@@ -1,7 +1,4 @@
 """
-fastGeoToolkit: A novel high-performance geospatial analysis framework
-with advanced route density mapping algorithms.
-
 This package provides high-performance GPS track processing, route density analysis,
 and geospatial utilities through Rust-compiled Python extensions.
 """
