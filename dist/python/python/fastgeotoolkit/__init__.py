@@ -54,7 +54,7 @@ from .utils import (
     create_folium_map,
 )
 
-__version__ = "0.1.6"
+__version__ = "0.1.7"
 __author__ = "a0a7"
 __email__ = "contact@a0.ax"
 __license__ = "MIT"
