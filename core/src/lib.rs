@@ -429,7 +429,7 @@ fn distance(p1: [f64; 2], p2: [f64; 2]) -> f64 {
     (dx * dx + dy * dy).sqrt()
 }
 
-fn is_valid_coordinate(lat: f64, lon: f64) -> bool {
+pub fn is_valid_coordinate(lat: f64, lon: f64) -> bool {
     // Check for valid latitude and longitude ranges
     if !(-90.0..=90.0).contains(&lat) || !(-180.0..=180.0).contains(&lon) {
         return false;
@@ -555,22 +555,22 @@ fn haversine_distance(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
 // FIT file format reference: https://developer.garmin.com/fit/protocol/
 
 pub struct FitParser {
-    data: Vec<u8>,
-    pos: usize,
-    message_definitions: HashMap<u8, MessageDefinition>,
+    pub data: Vec<u8>,
+    pub pos: usize,
+    pub message_definitions: HashMap<u8, MessageDefinition>,
 }
 
 #[derive(Clone)]
 pub struct MessageDefinition {
-    global_message_number: u16,
-    fields: Vec<FieldDefinition>,
+    pub global_message_number: u16,
+    pub fields: Vec<FieldDefinition>,
 }
 
 #[derive(Clone)]
 pub struct FieldDefinition {
-    field_def_num: u8,
-    size: u8,
-    _base_type: u8,
+    pub field_def_num: u8,
+    pub size: u8,
+    pub _base_type: u8,
 }
 
 impl FitParser {
@@ -582,7 +582,7 @@ impl FitParser {
         }
     }
 
-    fn read_u8(&mut self) -> Option<u8> {
+    pub fn read_u8(&mut self) -> Option<u8> {
         if self.pos < self.data.len() {
             let val = self.data[self.pos];
             self.pos += 1;
@@ -592,7 +592,7 @@ impl FitParser {
         }
     }
 
-    fn read_u16_le(&mut self) -> Option<u16> {
+    pub fn read_u16_le(&mut self) -> Option<u16> {
         if self.pos + 1 < self.data.len() {
             let val = u16::from_le_bytes([self.data[self.pos], self.data[self.pos + 1]]);
             self.pos += 2;
@@ -602,7 +602,7 @@ impl FitParser {
         }
     }
 
-    fn read_u32_le(&mut self) -> Option<u32> {
+    pub fn read_u32_le(&mut self) -> Option<u32> {
         if self.pos + 3 < self.data.len() {
             let val = u32::from_le_bytes([
                 self.data[self.pos],
@@ -617,7 +617,7 @@ impl FitParser {
         }
     }
 
-    fn read_i32_le(&mut self) -> Option<i32> {
+    pub fn read_i32_le(&mut self) -> Option<i32> {
         if self.pos + 3 < self.data.len() {
             let val = i32::from_le_bytes([
                 self.data[self.pos],
@@ -632,7 +632,7 @@ impl FitParser {
         }
     }
 
-    fn skip(&mut self, bytes: usize) {
+    pub fn skip(&mut self, bytes: usize) {
         self.pos = (self.pos + bytes).min(self.data.len());
     }
 
@@ -814,7 +814,7 @@ impl FitParser {
         coordinates
     }
 
-    fn parse_definition_message(&mut self) -> Option<MessageDefinition> {
+    pub fn parse_definition_message(&mut self) -> Option<MessageDefinition> {
         let _start_pos = self.pos;
 
         // Check we have enough bytes for the basic structure
@@ -869,7 +869,7 @@ impl FitParser {
         })
     }
 
-    fn parse_record_message(&mut self, definition: &MessageDefinition) -> Option<[f64; 2]> {
+    pub fn parse_record_message(&mut self, definition: &MessageDefinition) -> Option<[f64; 2]> {
         let mut lat: Option<f64> = None;
         let mut lon: Option<f64> = None;
 
@@ -930,7 +930,7 @@ impl FitParser {
         }
     }
 
-    fn parse_flexible_gps_message(&mut self, definition: &MessageDefinition) -> Option<[f64; 2]> {
+    pub fn parse_flexible_gps_message(&mut self, definition: &MessageDefinition) -> Option<[f64; 2]> {
         let mut lat: Option<f64> = None;
         let mut lon: Option<f64> = None;
         let mut potential_coords = Vec::new();
