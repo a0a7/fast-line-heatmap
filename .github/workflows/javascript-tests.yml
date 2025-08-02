@@ -36,7 +36,8 @@ jobs:
     
     - name: Build WebAssembly
       run: |
-        # Build the WASM package
+        # Build the WASM package from core directory
+        cd core
         wasm-pack build --target bundler --out-dir ../dist/javascript/wasm
         
         # List what was generated
@@ -80,7 +81,6 @@ jobs:
         # Also check the parent directory structure
         echo "JavaScript directory structure:"
         ls -la ../dist/javascript/
-      working-directory: ./core
     
     - name: Install dependencies
       run: |
