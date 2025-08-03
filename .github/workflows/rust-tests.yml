@@ -54,9 +54,6 @@ jobs:
         # Run tests with coverage
         cargo tarpaulin --workspace --out xml --output-dir ./coverage/
         
-        # List coverage files for debugging
-        ls -la ./coverage/
-        
         # Also run normal tests for counting
         cargo test --workspace > test_output.txt 2>&1 || true
         
