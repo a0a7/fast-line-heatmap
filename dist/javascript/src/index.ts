@@ -6,6 +6,9 @@
 // WebAssembly module import (will be bundled)
 let wasmModule: any = null;
 
+// Export WASM loading utilities
+export { initWithWasm, loadWasmFromUrl } from './wasm-loader.js';
+
 /**
  * GPS coordinate as [latitude, longitude]
  */
@@ -61,29 +64,67 @@ export interface FileInfo {
 /**
  * Initialize the WebAssembly module
  * Must be called before using any WASM-based functions
+ * @param wasmInit Pre-loaded WASM module (from loadWasm() helper)
  */
-export async function init(): Promise<void> {
-  if (wasmModule) return;
+export async function init(wasmInit: any): Promise<void> {
+  if (!wasmInit) {
+    throw new Error('WASM module must be provided to init() function. Use loadWasm() to load it first.');
+  }
   
+  wasmModule = wasmInit;
+}
+
+/**
+ * Load the WASM module - users call this first, then pass result to init()
+ * This avoids module resolution issues by using a simple approach
+ */
+export async function loadWasm(): Promise<any> {
   try {
-    // Dynamic import of the WASM module - wasm-pack generates different exports
-    const wasmInit = await import('../wasm/fastgeotoolkit.js');
+    // Use Function constructor to make import completely dynamic and avoid build-time resolution
+    const dynamicImport = new Function('path', 'return import(path)');
+    let wasmModule;
     
-    // wasm-pack default export is typically the init function itself
-    if (typeof wasmInit.default === 'function') {
-      await wasmInit.default();
-    } else {
-      // If default is not a function, it might be the WASM module object
-      // Try calling init if it exists
-      const wasmAny = wasmInit as any;
-      if (typeof wasmAny.init === 'function') {
-        await wasmAny.init();
+    // First try: from package exports
+    try {
+      wasmModule = await dynamicImport('fastgeotoolkit/wasm');
+    } catch (e1) {
+      // Second try: relative to current module (for bundled scenario)
+      try {
+        wasmModule = await dynamicImport('./fastgeotoolkit.js');
+      } catch (e2) {
+        // Third try: from dist directory
+        try {
+          wasmModule = await dynamicImport('../dist/fastgeotoolkit.js');
+        } catch (e3) {
+          throw new Error(`Failed to import WASM module. Tried multiple paths: ${e1.message}, ${e2.message}, ${e3.message}`);
+        }
       }
     }
     
-    wasmModule = wasmInit;
+    // Initialize the WASM module
+    if (typeof wasmModule.default === 'function') {
+      await wasmModule.default();
+    }
+    
+    return wasmModule;
   } catch (error) {
-    throw new Error(`Failed to initialize WebAssembly module: ${error}`);
+    throw new Error(`Failed to load WASM module: ${error}`);
+  }
+}
+
+/**
+ * Internal helper to ensure WASM is initialized
+ * Used by all exported functions that need WASM
+ */
+async function ensureWasmInitialized(): Promise<void> {
+  if (!wasmModule) {
+    try {
+      const wasmInit = await loadWasm();
+      await init(wasmInit);
+    } catch (error) {
+      console.error('Failed to initialize WASM module:', error);
+      throw error;
+    }
   }
 }
 
@@ -93,7 +134,7 @@ export async function init(): Promise<void> {
  * @returns Heatmap result with frequency analysis
  */
 export async function processGpxFiles(files: Uint8Array[]): Promise<HeatmapResult> {
-  await init();
+  await ensureWasmInitialized();
   const fileArray = new Array(files.length);
   files.forEach((file, i) => {
     fileArray[i] = file;
@@ -107,7 +148,7 @@ export async function processGpxFiles(files: Uint8Array[]): Promise<HeatmapResul
  * @returns Array of coordinates
  */
 export async function decodePolyline(encoded: string): Promise<Coordinate[]> {
-  await init();
+  await ensureWasmInitialized();
   return wasmModule.decode_polyline_string(encoded);
 }
 
@@ -117,7 +158,7 @@ export async function decodePolyline(encoded: string): Promise<Coordinate[]> {
  * @returns Heatmap result
  */
 export async function processPolylines(polylines: string[]): Promise<HeatmapResult> {
-  await init();
+  await ensureWasmInitialized();
   return wasmModule.process_polylines(polylines);
 }
 
@@ -127,7 +168,7 @@ export async function processPolylines(polylines: string[]): Promise<HeatmapResu
  * @returns Validation result with issues
  */
 export async function validateCoordinates(coordinates: Coordinate[]): Promise<ValidationResult> {
-  await init();
+  await ensureWasmInitialized();
   return wasmModule.validate_coordinates(coordinates);
 }
 
@@ -137,7 +178,7 @@ export async function validateCoordinates(coordinates: Coordinate[]): Promise<Va
  * @returns Statistics including distance and bounding box
  */
 export async function calculateTrackStatistics(coordinates: Coordinate[]): Promise<TrackStatistics> {
-  await init();
+  await ensureWasmInitialized();
   return wasmModule.calculate_track_statistics(coordinates);
 }
 
@@ -148,7 +189,7 @@ export async function calculateTrackStatistics(coordinates: Coordinate[]): Promi
  * @returns Simplified coordinate array
  */
 export async function simplifyTrack(coordinates: Coordinate[], tolerance: number): Promise<Coordinate[]> {
-  await init();
+  await ensureWasmInitialized();
   return wasmModule.simplify_coordinates(coordinates, tolerance);
 }
 
@@ -162,7 +203,7 @@ export async function findTrackIntersections(
   tracks: Coordinate[][],
   tolerance: number
 ): Promise<Array<{ coordinate: Coordinate; track_indices: number[] }>> {
-  await init();
+  await ensureWasmInitialized();
   return wasmModule.find_track_intersections(tracks, tolerance);
 }
 
@@ -176,7 +217,7 @@ export async function coordinatesToGeojson(
   coordinates: Coordinate[],
   properties: Record<string, any> = {}
 ): Promise<any> {
-  await init();
+  await ensureWasmInitialized();
   return wasmModule.coordinates_to_geojson(coordinates, properties);
 }
 
@@ -190,7 +231,7 @@ export async function exportToGpx(
   tracks: Coordinate[][],
   metadata: Record<string, any> = {}
 ): Promise<string> {
-  await init();
+  await ensureWasmInitialized();
   return wasmModule.export_to_gpx(tracks, metadata);
 }
 
@@ -206,7 +247,7 @@ export async function calculateCoverageArea(
   area_km2: number;
   point_count: number;
 }> {
-  await init();
+  await ensureWasmInitialized();
   return wasmModule.calculate_coverage_area(tracks);
 }
 
@@ -216,7 +257,7 @@ export async function calculateCoverageArea(
  * @returns File format information
  */
 export async function getFileInfo(fileData: Uint8Array): Promise<FileInfo> {
-  await init();
+  await ensureWasmInitialized();
   return wasmModule.get_file_info(fileData);
 }
 
@@ -234,7 +275,7 @@ export async function calculateDistance(
   lat2: number,
   lon2: number
 ): Promise<number> {
-  await init();
+  await ensureWasmInitialized();
   return wasmModule.calculate_distance_between_points(lat1, lon1, lat2, lon2);
 }
 
