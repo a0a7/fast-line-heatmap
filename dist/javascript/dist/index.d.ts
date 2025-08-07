@@ -1,7 +1,21 @@
 /**
+ * WASM module initialization utilities
+ */
+/**
+ * Initialize fastgeotoolkit with automatic WASM loading
+ * This is a convenience function that handles WASM loading automatically
+ */
+declare function initWithWasm(): Promise<any>;
+/**
+ * Load WASM from URL
+ */
+declare function loadWasmFromUrl(wasmJsUrl: string, wasmBgUrl?: string): Promise<any>;
+
+/**
  * fastGeoToolkit - A novel high-performance geospatial analysis framework
  * with advanced route density mapping algorithms
  */
+
 /**
  * GPS coordinate as [latitude, longitude]
  */
@@ -51,8 +65,14 @@ interface FileInfo {
 /**
  * Initialize the WebAssembly module
  * Must be called before using any WASM-based functions
+ * @param wasmInit Pre-loaded WASM module (from loadWasm() helper)
  */
-declare function init(): Promise<void>;
+declare function init(wasmInit: any): Promise<void>;
+/**
+ * Load the WASM module - users call this first, then pass result to init()
+ * This avoids module resolution issues by using a simple approach
+ */
+declare function loadWasm(): Promise<any>;
 /**
  * Process GPX files and generate route density heatmap
  * @param files Array of file data as Uint8Array
@@ -157,5 +177,5 @@ declare const utils: {
     getBoundingBox(coordinates: Coordinate[]): [number, number, number, number];
 };
 
-export { calculateCoverageArea, calculateDistance, calculateTrackStatistics, coordinatesToGeojson, decodePolyline, exportToGpx, findTrackIntersections, getFileInfo, init, processGpxFiles, processPolylines, simplifyTrack, utils, validateCoordinates };
+export { calculateCoverageArea, calculateDistance, calculateTrackStatistics, coordinatesToGeojson, decodePolyline, exportToGpx, findTrackIntersections, getFileInfo, init, initWithWasm, loadWasm, loadWasmFromUrl, processGpxFiles, processPolylines, simplifyTrack, utils, validateCoordinates };
 export type { Coordinate, FileInfo, HeatmapResult, HeatmapTrack, TrackStatistics, ValidationResult };
