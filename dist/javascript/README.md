@@ -1,141 +1,90 @@
-# fastGeoToolkit JavaScript/TypeScript
+# fastgeotoolkit
 
 [![npm](https://img.shields.io/npm/v/fastgeotoolkit.svg)](https://www.npmjs.com/package/fastgeotoolkit)
-[![npm downloads](https://img.shields.io/npm/dm/fastgeotoolkit.svg)](https://www.npmjs.com/package/fastgeotoolkit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A novel high-performance geospatial analysis framework with advanced route density mapping algorithms, compiled to WebAssembly for maximum performance in JavaScript/TypeScript applications.
+fastgeotoolkit is a library for GPS data processing and route density mapping. The core of the library is written in Rust and compiled to webassembly for use in the browser and node. This makes it particularly fast.
+
+## What it does
+
+The main use case is creating route heatmaps where you want to see which paths/routes are used most frequently. You can test this functionality at [https://activityheatmap.pages.dev/](https://activityheatmap.pages.dev/), using either your own data or sample data. This is an example of what a heatmap produced using fastgeotoolkit looks like:
+![https://i.ibb.co/MxpHbVdp/image.png](https://i.ibb.co/MxpHbVdp/image.png)
+
+However, beyond this primary usecase, this library helps you:
+- Analyze GPS tracks (distance, statistics, intersections)
+- Decode Google polylines 
+- Convert between GPS data formats
+
 
 ## Installation
 
 ```bash
 npm install fastgeotoolkit
-# or
-yarn add fastgeotoolkit
-# or
-pnpm add fastgeotoolkit
+# or 
+pnpm i fastgeotoolkit
 ```
 
-## Quick Start
+## Basic Usage
 
-### ES Modules (Recommended)
 
 ```typescript
-import { 
-  init, 
-  processGpxFiles, 
-  decodePolyline, 
-  calculateTrackStatistics,
-  type HeatmapResult,
-  type Coordinate 
-} from 'fastgeotoolkit';
+import { processGpxFiles } from 'fastgeotoolkit';
 
-// Initialize WebAssembly module
-await init();
+// Process GPX files into a heatmap
+const gpxFile1 = new Uint8Array(/* your GPX file data */);
+const gpxFile2 = new Uint8Array(/* another GPX file */);
 
-// Process GPX files
-const gpxData = new Uint8Array(/* your GPX file data */);
-const heatmap: HeatmapResult = await processGpxFiles([gpxData]);
+const result = await processGpxFiles([gpxFile1, gpxFile2]);
 
-// Decode polylines
-const coords: Coordinate[] = await decodePolyline('_p~iF~ps|U_ulLnnqC_mqNvxq`@');
+// Result contains tracks with frequency data
+console.log(`Found ${result.tracks.length} unique track segments`);
+console.log(`Maximum frequency: ${result.max_frequency}`);
 
-// Calculate statistics
-const stats = await calculateTrackStatistics(coords);
-console.log(`Distance: ${stats.distance_km.toFixed(2)} km`);
-```
-
-### CommonJS
-
-```javascript
-const { init, processGpxFiles, decodePolyline } = require('fastgeotoolkit');
-
-async function example() {
-  await init();
-  
-  const coords = await decodePolyline('_p~iF~ps|U_ulLnnqC_mqNvxq`@');
-  console.log('Decoded coordinates:', coords);
-}
-```
-
-### Browser (CDN)
-
-```html
-<script type="module">
-  import { init, decodePolyline } from 'https://unpkg.com/fastgeotoolkit@latest/dist/index.esm.js';
-  
-  await init();
-  const coords = await decodePolyline('_p~iF~ps|U_ulLnnqC_mqNvxq`@');
-  console.log(coords);
-</script>
-```
-
-## Core Features
-
-### Route Density Mapping
-
-Generate heatmaps with frequency analysis for route popularity visualization:
-
-```typescript
-import { processGpxFiles, type HeatmapResult } from 'fastgeotoolkit';
-
-const files = [gpxFile1, gpxFile2, gpxFile3]; // Uint8Array[]
-const heatmap: HeatmapResult = await processGpxFiles(files);
-
-// Access frequency-weighted tracks
-heatmap.tracks.forEach((track, index) => {
-  console.log(`Track ${index}: ${track.frequency}x frequency, ${track.coordinates.length} points`);
+result.tracks.forEach(track => {
+  console.log(`Track with ${track.coordinates.length} points, used ${track.frequency} times`);
 });
-
-console.log(`Maximum frequency: ${heatmap.max_frequency}`);
 ```
 
-### 📍 Multi-Format GPS Processing
-
-Support for GPX, FIT, and polyline formats:
+## Working with Polylines
 
 ```typescript
-import { processGpxFiles, processPolylines, decodePolyline } from 'fastgeotoolkit';
+import { decodePolyline, processPolylines } from 'fastgeotoolkit';
 
-// GPX files
-const gpxResult = await processGpxFiles([gpxData]);
+// Decode a single polyline
+const coords = await decodePolyline('_p~iF~ps|U_ulLnnqC_mqNvxq`@');
+console.log(coords); // [[lat, lng], [lat, lng], ...]
 
-// Multiple polylines
-const polylines = ['polyline1', 'polyline2', 'polyline3'];
-const polylineResult = await processPolylines(polylines);
-
-// Single polyline
-const coordinates = await decodePolyline('encoded_polyline_string');
+// Process multiple polylines into a heatmap
+const polylines = [
+  '_p~iF~ps|U_ulLnnqC_mqNvxq`@',
+  'another_encoded_polyline',
+  'yet_another_one'
+];
+const heatmap = await processPolylines(polylines);
 ```
 
-### Track Analysis
-
-Comprehensive geospatial analysis functions:
+## Track Analysis
 
 ```typescript
-import { 
-  calculateTrackStatistics, 
-  findTrackIntersections, 
-  validateCoordinates 
-} from 'fastgeotoolkit';
+import { calculateTrackStatistics, validateCoordinates } from 'fastgeotoolkit';
 
-// Track statistics
+const coordinates = [[37.7749, -122.4194], [37.7849, -122.4094]]; // [lat, lng] pairs
+
+// Get basic statistics
 const stats = await calculateTrackStatistics(coordinates);
-console.log(`Distance: ${stats.distance_km} km`);
-console.log(`Bounding box: ${stats.bounding_box}`);
-
-// Find intersections
-const tracks = [track1, track2, track3];
-const intersections = await findTrackIntersections(tracks, 0.001); // 100m tolerance
+console.log(`Distance: ${stats.distance_km.toFixed(2)} km`);
+console.log(`${stats.point_count} GPS points`);
+console.log(`Bounds: ${stats.bounding_box}`); // [min_lat, min_lng, max_lat, max_lng]
 
 // Validate coordinates
 const validation = await validateCoordinates(coordinates);
-console.log(`Valid: ${validation.valid_count}/${validation.total_count}`);
+console.log(`${validation.valid_count} out of ${validation.total_count} coordinates are valid`);
+if (validation.issues.length > 0) {
+  console.log('Issues found:', validation.issues);
+}
 ```
 
-### Data Conversion
-
-Convert between different geospatial formats:
+## Data Conversion
 
 ```typescript
 import { coordinatesToGeojson, exportToGpx } from 'fastgeotoolkit';
@@ -143,132 +92,120 @@ import { coordinatesToGeojson, exportToGpx } from 'fastgeotoolkit';
 // Convert to GeoJSON
 const geojson = await coordinatesToGeojson(coordinates, {
   name: 'My Route',
-  sport: 'cycling'
+  activity: 'cycling'
 });
 
-// Export to GPX
-const gpxString = await exportToGpx([track1, track2], {
-  creator: 'fastGeoToolkit',
-  version: '1.1'
+// Export multiple tracks as GPX
+const tracks = [track1_coordinates, track2_coordinates];
+const gpxString = await exportToGpx(tracks, {
+  creator: 'My App',
+  name: 'Route Collection'
 });
 ```
 
-## API Reference
+## Real-world Example
 
-### Initialization
+Here's an example of how you might use this in a web app to show route popularity:
 
-- `init()` - Initialize WebAssembly module (required before other functions)
+```typescript
+import { processGpxFiles } from 'fastgeotoolkit';
 
-### Processing Functions
+async function createHeatmap(gpxFiles) {
+  // Convert files to Uint8Array
+  const fileBuffers = await Promise.all(
+    gpxFiles.map(file => file.arrayBuffer().then(buf => new Uint8Array(buf)))
+  );
+  
+  // Process into heatmap
+  const heatmap = await processGpxFiles(fileBuffers);
+  
+  // Render on map (example with any mapping library)
+  heatmap.tracks.forEach(track => {
+    const intensity = track.frequency / heatmap.max_frequency;
+    const color = `hsl(${(1-intensity) * 240}, 100%, 50%)`; // blue to red
+    
+    drawLineOnMap(track.coordinates, {
+      color: color,
+      weight: Math.max(2, intensity * 8)
+    });
+  });
+}
 
-- `processGpxFiles(files: Uint8Array[])` - Process GPX files into heatmap
-- `processPolylines(polylines: string[])` - Process polyline data into heatmap
-- `decodePolyline(encoded: string)` - Decode single polyline to coordinates
-
-### Analysis Functions
-
-- `calculateTrackStatistics(coords: Coordinate[])` - Calculate distance, bounds, etc.
-- `findTrackIntersections(tracks: Coordinate[][], tolerance: number)` - Find intersection points
-- `validateCoordinates(coords: Coordinate[])` - Validate GPS coordinates
-- `calculateCoverageArea(tracks: Coordinate[][])` - Calculate geographic coverage
-- `simplifyTrack(coords: Coordinate[], tolerance: number)` - Simplify track geometry
-
-### Conversion Functions
-
-- `coordinatesToGeojson(coords: Coordinate[], properties: object)` - Convert to GeoJSON
-- `exportToGpx(tracks: Coordinate[][], metadata: object)` - Export to GPX format
-- `getFileInfo(data: Uint8Array)` - Get file format information
-
-### Utility Functions
-
-- `calculateDistance(lat1, lon1, lat2, lon2)` - Calculate distance between points
-- `utils.isValidCoordinate(lat, lon)` - Validate single coordinate (JS implementation)
-- `utils.haversineDistance(lat1, lon1, lat2, lon2)` - Calculate distance (JS implementation)
-- `utils.getBoundingBox(coords)` - Calculate bounding box (JS implementation)
+// Usage
+document.getElementById('file-input').addEventListener('change', async (e) => {
+  const files = Array.from(e.target.files);
+  await createHeatmap(files);
+});
+```
 
 ## TypeScript Support
 
-Full TypeScript support with comprehensive type definitions:
+The library includes full TypeScript definitions:
 
 ```typescript
 import type { 
-  Coordinate,
-  HeatmapResult,
-  HeatmapTrack,
-  TrackStatistics,
-  ValidationResult,
-  FileInfo 
+  Coordinate,        // [number, number] - [lat, lng]
+  HeatmapResult,     // { tracks: HeatmapTrack[], max_frequency: number }
+  HeatmapTrack,      // { coordinates: Coordinate[], frequency: number }
+  TrackStatistics,   // distance, bounds, point count, etc.
+  ValidationResult,  // validation results with issues
+  FileInfo          // file format information
 } from 'fastgeotoolkit';
 ```
 
-## Performance
+## JavaScript Utilities
 
-- **WebAssembly**: Near-native performance through Rust compilation
-- **Memory Efficient**: Optimized for large GPS datasets
-- **Browser Compatible**: Works in all modern browsers
-- **Node.js Ready**: Full server-side support
+For simple operations that don't rely on WebAssembly:
 
-## Framework Integration
+```typescript
+import { utils } from 'fastgeotoolkit';
 
-### React
-
-```tsx
-import React, { useEffect, useState } from 'react';
-import { init, processGpxFiles, type HeatmapResult } from 'fastgeotoolkit';
-
-function RouteHeatmap() {
-  const [heatmap, setHeatmap] = useState<HeatmapResult | null>(null);
-
-  useEffect(() => {
-    async function loadHeatmap() {
-      await init();
-      const result = await processGpxFiles([gpxData]);
-      setHeatmap(result);
-    }
-    loadHeatmap();
-  }, []);
-
-  return (
-    <div>
-      {heatmap && (
-        <p>Generated heatmap with {heatmap.tracks.length} tracks</p>
-      )}
-    </div>
-  );
+// Basic coordinate validation
+if (utils.isValidCoordinate(37.7749, -122.4194)) {
+  console.log('Valid GPS coordinate');
 }
+
+// Calculate distance between two points
+const distance = utils.haversineDistance(37.7749, -122.4194, 37.7849, -122.4094);
+console.log(`Distance: ${distance.toFixed(2)} km`);
+
+// Get bounding box
+const bounds = utils.getBoundingBox(coordinates);
+console.log(`Bounds: ${bounds}`); // [min_lat, min_lng, max_lat, max_lng]
 ```
 
-### Vue.js
+## Browser vs Node.js
 
-```vue
-<template>
-  <div>
-    <p v-if="heatmap">Tracks: {{ heatmap.tracks.length }}</p>
-  </div>
-</template>
+Works the same in both environments:
 
-<script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { init, processGpxFiles, type HeatmapResult } from 'fastgeotoolkit';
+```javascript
+// Browser
+import { processGpxFiles } from 'fastgeotoolkit';
 
-const heatmap = ref<HeatmapResult | null>(null);
-
-onMounted(async () => {
-  await init();
-  heatmap.value = await processGpxFiles([gpxData]);
-});
-</script>
+// Node.js  
+const { processGpxFiles } = require('fastgeotoolkit');
+// or with ES modules:
+import { processGpxFiles } from 'fastgeotoolkit';
 ```
 
-## Examples
+## Performance Notes
 
-See the [examples directory](./examples/) for complete usage examples:
+- WebAssembly provides near-native performance for GPS processing
+- Large datasets (thousands of tracks) process quickly
+- First function call initializes WebAssembly (adds ~100ms startup time)
 
-- Basic coordinate processing
-- Route density heatmap generation
-- Real-time GPS track analysis
-- Integration with mapping libraries
+## Common Issues
+
+**"Cannot resolve module"** errors: Make sure your bundler supports WebAssembly. Modern bundlers (Vite, Webpack 5+, etc.) work out of the box.
+
+**TypeScript errors**: Ensure you're using TypeScript 4.0+ for proper WebAssembly typing support.
+
+**File reading**: Remember to convert File objects to Uint8Array:
+```javascript
+const buffer = await file.arrayBuffer();
+const uint8Array = new Uint8Array(buffer);
+```
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+MIT
