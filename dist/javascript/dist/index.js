@@ -113,7 +113,6 @@ async function ensureWasmInitialized() {
         try {
             const wasmInit = await loadWasm();
             await init(wasmInit);
-            console.log('WASM module initialized successfully');
         }
         catch (error) {
             console.error('Failed to initialize WASM module:', error);
