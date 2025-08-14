@@ -11,9 +11,6 @@ importers:
       '@mapbox-controls/ruler':
         specifier: ^3.0.0
         version: 3.0.0(mapbox-gl@3.13.0)
-      '@motiongis/heatmap-parse':
-        specifier: ^0.1.0
-        version: 0.1.0
       '@turf/distance':
         specifier: ^7.2.0
         version: 7.2.0
@@ -23,6 +20,9 @@ importers:
       '@turf/turf':
         specifier: ^7.2.0
         version: 7.2.0
+      fastgeotoolkit:
+        specifier: ^0.1.14
+        version: 0.1.14
       maplibre-gl:
         specifier: ^5.6.0
         version: 5.6.0
@@ -710,9 +710,6 @@ packages:
   '@maplibre/maplibre-gl-style-spec@23.3.0':
     resolution: {integrity: sha512-IGJtuBbaGzOUgODdBRg66p8stnwj9iDXkgbYKoYcNiiQmaez5WVRfXm4b03MCDwmZyX93csbfHFWEJJYHnn5oA==}
     hasBin: true
-
-  '@motiongis/heatmap-parse@0.1.0':
-    resolution: {integrity: sha512-A4eHiNvEXTiDVOqwO0uxUmPvTnl9/GB7BZgOyn2+TklhAqu2YkR9NXs0HvRg4dAGodgL/GG2U9guRo0V4sUhuw==}
 
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
@@ -1691,6 +1688,10 @@ packages:
 
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
+
+  fastgeotoolkit@0.1.14:
+    resolution: {integrity: sha512-a452x1vHNFYXIJsBGtXLw6diY/BIFHaUIsnIWC2CbQxGsH7ChesQJTduUY1/ywanb2oj1gp8B2OW147gWerNLw==}
+    engines: {node: '>=16.0.0'}
 
   fdir@6.4.6:
     resolution: {integrity: sha512-hiFoqpyZcfNm1yc4u8oWCf9A2c4D3QjCrks3zmoVKVxpQRzmPNar1hUJcBG2RQHvEVGDN+Jm81ZheVLAQMK6+w==}
@@ -2933,8 +2934,6 @@ snapshots:
       quickselect: 3.0.0
       rw: 1.3.3
       tinyqueue: 3.0.0
-
-  '@motiongis/heatmap-parse@0.1.0': {}
 
   '@polka/url@1.0.0-next.29': {}
 
@@ -4665,6 +4664,8 @@ snapshots:
     optional: true
 
   fast-deep-equal@3.1.3: {}
+
+  fastgeotoolkit@0.1.14: {}
 
   fdir@6.4.6(picomatch@4.0.2):
     optionalDependencies:

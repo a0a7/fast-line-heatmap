@@ -450,7 +450,13 @@
       if (!processGpxFiles) {
         throw new Error('WASM module not loaded');
       }
-      const result = processGpxFiles(jsArray);
+      
+      const result = await processGpxFiles(jsArray);
+      
+      if (!result) {
+        throw new Error('WASM function returned null/undefined');
+      }
+      
       const heatmapResult = result as { tracks: any[], max_frequency: number };
       
       console.log('WASM returned', heatmapResult.tracks.length, 'tracks with max frequency:', heatmapResult.max_frequency);
@@ -1360,47 +1366,17 @@
       // Initialize WASM module dynamically in browser only
       if (browser) {
         try {
-          // Import the npm package instead of static files
-          const wasmModule = await import('@motiongis/heatmap-parse');
-          await wasmModule.default();
+          // Import the published fastgeotoolkit npm package
+          const fastGeoToolkit = await import('fastgeotoolkit');
           
-          processGpxFiles = wasmModule.process_gpx_files;
-          processPolylines = wasmModule.process_polylines;
+          // Just assign the functions - they will automatically handle WASM loading
+          processGpxFiles = fastGeoToolkit.processGpxFiles;
+          processPolylines = fastGeoToolkit.processPolylines;
           
-          console.log('WASM initialized successfully from npm package');
+          console.log('WASM initialized successfully from fastgeotoolkit npm package');
         } catch (err) {
-          console.error('Failed to load WASM module from npm:', err);
-          
-          // Fallback to static files for development
-          try {
-            const isDev = import.meta.env.DEV;
-            const wasmJsUrl = isDev ? '/static/fastgeotoolkit.js' : '/fastgeotoolkit.js';
-            const wasmBgUrl = isDev ? '/static/fastgeotoolkit_bg.wasm' : '/fastgeotoolkit_bg.wasm';
-            
-            console.log('Falling back to static WASM files:', wasmJsUrl, 'and', wasmBgUrl);
-            
-            const response = await fetch(wasmJsUrl);
-            if (!response.ok) {
-              throw new Error(`Failed to fetch WASM JS module: ${response.status}`);
-            }
-            
-            const moduleText = await response.text();
-            const moduleBlob = new Blob([moduleText], { type: 'application/javascript' });
-            const moduleUrl = URL.createObjectURL(moduleBlob);
-            
-            const wasmModule = await import(/* @vite-ignore */ moduleUrl);
-            await wasmModule.default(wasmBgUrl);
-            
-            processGpxFiles = wasmModule.process_gpx_files;
-            processPolylines = wasmModule.process_polylines;
-            
-            URL.revokeObjectURL(moduleUrl);
-            
-            console.log('WASM initialized successfully from static files');
-          } catch (staticErr) {
-            console.error('Failed to load WASM module from static files:', staticErr);
-            error = `Failed to load WASM module: ${err}. Static fallback also failed: ${staticErr}`;
-          }
+          console.error('Failed to load fastgeotoolkit npm package:', err);
+          error = `Failed to load fastgeotoolkit module: ${err}`;
         }
       }
 
