@@ -10,12 +10,14 @@ import {
   simplifyTrack,
   calculateDistance,
   init,
+  initWithWasm,
   Coordinate
 } from '../index';
 
 // Initialize the WASM module before running tests
 beforeAll(async () => {
-  await init();
+  const wasmModule = await initWithWasm();
+  await init(wasmModule);
 });
 
 describe('File Processing', () => {

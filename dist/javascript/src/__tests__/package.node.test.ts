@@ -4,43 +4,43 @@
 
 // Import from the built distribution
 const {
-  init,
-  decodePolyline,
-  validateCoordinates,
-  calculateDistance,
-  simplifyTrack,
-  processGpxFiles,
-  processPolylines
+  init: initNode,
+  decodePolyline: decodePolylineNode,
+  validateCoordinates: validateCoordinatesNode,
+  calculateDistance: calculateDistanceNode,
+  simplifyTrack: simplifyTrackNode,
+  processGpxFiles: processGpxFilesNode,
+  processPolylines: processPolylinesNode
 } = require('../../dist/index.js');
 
 // Track WASM initialization status
-let wasmInitialized = false;
+let wasmInitializedNode = false;
 
 // Initialize WASM once for all tests
 beforeAll(async () => {
   try {
-    await init();
-    wasmInitialized = true;
+    await initNode();
+    wasmInitializedNode = true;
   } catch (error) {
     console.warn('WASM initialization failed, tests will run in mock mode:', String(error));
   }
 }, 30000);
 
-describe('JavaScript Package Integration Tests', () => {
+describe('JavaScript Package Integration Tests (Node)', () => {
   test('should export main functions', () => {
-    expect(typeof init).toBe('function');
-    expect(typeof decodePolyline).toBe('function');
-    expect(typeof validateCoordinates).toBe('function');
-    expect(typeof calculateDistance).toBe('function');
-    expect(typeof simplifyTrack).toBe('function');
-    expect(typeof processGpxFiles).toBe('function');
-    expect(typeof processPolylines).toBe('function');
+    expect(typeof initNode).toBe('function');
+    expect(typeof decodePolylineNode).toBe('function');
+    expect(typeof validateCoordinatesNode).toBe('function');
+    expect(typeof calculateDistanceNode).toBe('function');
+    expect(typeof simplifyTrackNode).toBe('function');
+    expect(typeof processGpxFilesNode).toBe('function');
+    expect(typeof processPolylinesNode).toBe('function');
   });
 
   test('should attempt to initialize', async () => {
     // Test that init doesn't crash even if WASM fails
     try {
-      await init();
+      await initNode();
       // If it succeeds, great!
     } catch (error) {
       // If it fails, that's expected in Node.js without proper WASM setup
@@ -49,13 +49,13 @@ describe('JavaScript Package Integration Tests', () => {
   });
 
   test('should handle basic polyline decoding', async () => {
-    if (!wasmInitialized) {
+    if (!wasmInitializedNode) {
       console.log('Skipping WASM-dependent test: WASM not initialized');
       return;
     }
     
     try {
-      const result = await decodePolyline("_p~iF~ps|U_ulLnnqC_mqNvxq`@");
+      const result = await decodePolylineNode("_p~iF~ps|U_ulLnnqC_mqNvxq`@");
       expect(Array.isArray(result)).toBe(true);
       
       if (result.length > 0) {
@@ -70,14 +70,14 @@ describe('JavaScript Package Integration Tests', () => {
   });
 
   test('should handle coordinate validation', async () => {
-    if (!wasmInitialized) {
+    if (!wasmInitializedNode) {
       console.log('Skipping WASM-dependent test: WASM not initialized');
       return;
     }
     
     try {
       const coords = [[45.0, -122.0], [0, 0]];
-      const result = await validateCoordinates(coords);
+      const result = await validateCoordinatesNode(coords);
       
       expect(result).toHaveProperty('valid_count');
       expect(result).toHaveProperty('total_count');
@@ -92,13 +92,13 @@ describe('JavaScript Package Integration Tests', () => {
   });
 
   test('should handle distance calculation', async () => {
-    if (!wasmInitialized) {
+    if (!wasmInitializedNode) {
       console.log('Skipping WASM-dependent test: WASM not initialized');
       return;
     }
     
     try {
-      const distance = await calculateDistance(40.7128, -74.0060, 34.0522, -118.2437);
+      const distance = await calculateDistanceNode(40.7128, -74.0060, 34.0522, -118.2437);
       expect(typeof distance).toBe('number');
       expect(distance).toBeGreaterThan(0);
     } catch (error) {
@@ -108,14 +108,14 @@ describe('JavaScript Package Integration Tests', () => {
   });
 
   test('should handle track simplification', async () => {
-    if (!wasmInitialized) {
+    if (!wasmInitializedNode) {
       console.log('Skipping WASM-dependent test: WASM not initialized');
       return;
     }
     
     try {
       const coords = [[40.0, -120.0], [40.001, -120.001], [40.01, -120.01]];
-      const result = await simplifyTrack(coords, 0.005);
+      const result = await simplifyTrackNode(coords, 0.005);
       
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBeLessThanOrEqual(coords.length);
@@ -126,21 +126,21 @@ describe('JavaScript Package Integration Tests', () => {
   });
 
   test('should handle empty inputs gracefully', async () => {
-    if (!wasmInitialized) {
+    if (!wasmInitializedNode) {
       console.log('Skipping WASM-dependent test: WASM not initialized');
       return;
     }
     
     try {
-      const emptyPolyline = await decodePolyline('');
+      const emptyPolyline = await decodePolylineNode('');
       expect(Array.isArray(emptyPolyline)).toBe(true);
       expect(emptyPolyline).toHaveLength(0);
 
-      const emptyGpx = await processGpxFiles([]);
+      const emptyGpx = await processGpxFilesNode([]);
       expect(emptyGpx).toHaveProperty('tracks');
       expect(Array.isArray(emptyGpx.tracks)).toBe(true);
 
-      const emptyPolylines = await processPolylines([]);
+      const emptyPolylines = await processPolylinesNode([]);
       expect(emptyPolylines).toHaveProperty('tracks');
       expect(Array.isArray(emptyPolylines.tracks)).toBe(true);
     } catch (error) {
@@ -150,17 +150,17 @@ describe('JavaScript Package Integration Tests', () => {
   });
 
   test('should handle invalid inputs without crashing', async () => {
-    if (!wasmInitialized) {
+    if (!wasmInitializedNode) {
       console.log('Skipping WASM-dependent test: WASM not initialized');
       return;
     }
     
     try {
       // These should not throw errors but handle gracefully
-      const invalidPolyline = await decodePolyline('invalid_data');
+      const invalidPolyline = await decodePolylineNode('invalid_data');
       expect(Array.isArray(invalidPolyline)).toBe(true);
 
-      const invalidCoords = await validateCoordinates([[NaN, Infinity]]);
+      const invalidCoords = await validateCoordinatesNode([[NaN, Infinity]]);
       expect(invalidCoords).toHaveProperty('valid_count');
       expect(invalidCoords.valid_count).toBe(0);
     } catch (error) {

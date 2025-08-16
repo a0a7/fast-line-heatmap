@@ -6,13 +6,15 @@ import {
   processGpxFiles,
   processPolylines,
   init,
+  initWithWasm,
   HeatmapResult 
 } from '../index';
 import { sampleGpxData, samplePolyline, stringToUint8Array } from './testData';
 
 // Initialize the WASM module once for all tests
 beforeAll(async () => {
-  await init();
+  const wasmModule = await initWithWasm();
+  await init(wasmModule);
 }, 30000);
 
 describe('File Processing Integration Tests', () => {
