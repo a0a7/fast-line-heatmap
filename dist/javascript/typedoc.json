@@ -1,0 +1,47 @@
+{
+  "entryPoints": [
+    "src/index.ts"
+  ],
+  "out": "docs/js-api",
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/__tests__/**",
+    "src/**/test*",
+    "src/**/*.spec.ts"
+  ],
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeInternal": true,
+  "includeVersion": true,
+  "sort": [
+    "source-order"
+  ],
+  "categorizeByGroup": true,
+  "defaultCategory": "Functions",
+  "categoryOrder": [
+    "Types",
+    "Core Functions", 
+    "Processing Functions",
+    "Analysis Functions",
+    "Conversion Functions",
+    "Utility Functions",
+    "Initialization",
+    "*"
+  ],
+  "theme": "default",
+  "name": "fastgeotoolkit JavaScript API",
+  "readme": "README.md",
+  "navigation": {
+    "includeCategories": true,
+    "includeGroups": true
+  },
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": false
+  },
+  "sourceLinkTemplate": "https://github.com/a0a7/fastgeotoolkit/blob/main/dist/javascript/{path}#{line}",
+  "gitRevision": "main",
+  "disableSources": false,
+  "plugin": []
+}
