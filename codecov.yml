@@ -34,10 +34,6 @@ flags:
   javascript:
     paths:
       - dist/javascript/
-  python:
-    paths:
-      - dist/python/
-
 comment:
   layout: "header, diff, flags, components"
   behavior: default
